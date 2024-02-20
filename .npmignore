@@ -1,0 +1,6 @@
+.parcel-cache/
+src/
+.prettierrc
+tsconfig.json
+.tool-versions
+.release-it.yaml

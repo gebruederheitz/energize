@@ -1,0 +1,23 @@
+git:
+  commitMessage: "chore: Release v${version}"
+  requireBranch:
+    - main
+    - release/*
+    - next
+github:
+  release: true
+  web: true
+  releaseName: "${version}: "
+npm:
+  publish: true
+hooks:
+  before:init:
+    - asdf exec npm i
+    - asdf exec npm run lint
+  after:bump:
+    - asdf exec npm i
+    - >
+      git add
+      ./package-lock.json
+  after:release:
+    - echo Successfully released ${name} v${version} to ${repo.repository}.

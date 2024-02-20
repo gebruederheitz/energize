@@ -1,0 +1,39 @@
+{
+  "name": "@gebruederheitz/energize",
+  "version": "0.0.0",
+  "description": "Reactive DOM operations with plain ES6+",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/energize.mjs",
+  "types": "dist/types.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "parcel watch",
+    "build": "parcel build",
+    "prettier:check": "prettier -c --config .prettierrc src/",
+    "prettier:fix": "prettier -w --config .prettierrc src/",
+    "tscheck": "tsc --noEmit -p ./tsconfig.json",
+    "lint": "npm run prettier:check && npm run tscheck"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gebruederheitz/energize.git"
+  },
+  "keywords": [
+    "DOM"
+  ],
+  "author": "Andreas Gallus <andreas.gallus@gebruederheitz.de>",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/gebruederheitz/energize/issues"
+  },
+  "homepage": "https://github.com/gebruederheitz/energize#readme",
+  "devDependencies": {
+    "@parcel/packager-ts": "^2.11.0",
+    "@parcel/transformer-typescript-types": "^2.11.0",
+    "parcel": "^2.11.0",
+    "prettier": "^3.2.5",
+    "release-it": "^17.1.1",
+    "typescript": "^5.3.3"
+  }
+}
