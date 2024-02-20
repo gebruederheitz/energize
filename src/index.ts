@@ -108,6 +108,25 @@ export class EnhancedElement<
         );
     }
 
+    public static enhance<
+        T extends HTMLElement,
+        C extends EEConstructor<T, any>,
+        E extends EnhancedElement<T, any> = InstanceType<C>,
+    >(
+        selector: string,
+        Component: C,
+        store: EEStoreType<E> = null,
+        ...additionalArgs: EEConstructorArgs<C>
+    ): E {
+        const element = document.querySelector<T>(selector);
+        const enhanced = new Component(element, ...additionalArgs) as E;
+        if (store) {
+            enhanced.connect(store);
+        }
+
+        return enhanced;
+    }
+
     public static enhanceAll<
         T extends HTMLElement,
         C extends EEConstructor<T, any>,
@@ -196,6 +215,16 @@ export class EnhancedElement<
         return this;
     }
 
+    public contentOrHide(innerText: string | null = null): this {
+        if (!innerText) {
+            this.hide();
+
+            return this;
+        }
+
+        return this.content(innerText);
+    }
+
     public getContent(): string {
         return this.element.innerText;
     }
@@ -212,16 +241,23 @@ export class EnhancedElement<
         return this;
     }
 
-    public appendTo(parent: Element): this {
-        parent.appendChild(this.element);
+    public appendTo(parent: Element | EnhancedElement<any>): this {
+        if (parent instanceof EnhancedElement) {
+            parent.getElement().appendChild(this.element);
+        } else {
+            parent.appendChild(this.element);
+        }
 
         return this;
     }
 
-    public insertAfter(element: Element): this {
-        const parent = element.parentElement;
-        if (element.nextElementSibling !== null) {
-            parent.insertBefore(this.element, element.nextElementSibling);
+    public insertAfter(element: Element | EnhancedElement<any>): this {
+        const elementUsed =
+            element instanceof EnhancedElement ? element.getElement() : element;
+
+        const parent = elementUsed.parentElement;
+        if (elementUsed.nextElementSibling !== null) {
+            parent.insertBefore(this.element, elementUsed.nextElementSibling);
         } else {
             parent.appendChild(this.element);
         }
@@ -373,8 +409,18 @@ export class EnhancedElement<
         return this.element.parentElement as T;
     }
 
-    public get setAttribute() {
-        return this.element.setAttribute.bind(this.element);
+    public get getAttribute() {
+        return this.element.getAttribute;
+    }
+
+    public setAttribute(attributeName: string, attributeValue: string): this {
+        this.element.setAttribute(attributeName, attributeValue);
+
+        return this;
+    }
+
+    public get dataset() {
+        return this.element.dataset;
     }
 
     public getData<T extends unknown>(key: string): T {
@@ -391,6 +437,14 @@ export class EnhancedElement<
         return {
             hidden: 'hidden',
         };
+    }
+
+    protected emit(eventName: string, data: unknown) {
+        this.element.dispatchEvent(
+            new CustomEvent<typeof data>(eventName, {
+                detail: data,
+            })
+        );
     }
 
     /**
