@@ -13,6 +13,7 @@ npm:
 hooks:
   before:init:
     - asdf exec npm run lint
+    - asdf exec npm run build
   after:bump:
     - asdf exec npm i
     - >
