@@ -4,3 +4,5 @@ src/
 tsconfig.json
 .tool-versions
 .release-it.yaml
+.task/
+Taskfile.yaml
