@@ -7,13 +7,14 @@
   "module": "dist/energize.mjs",
   "types": "dist/types.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "parcel watch",
     "build": "parcel build",
+    "lint": "npm run prettier:check && npm run tscheck",
     "prettier:check": "prettier -c --config .prettierrc src/",
     "prettier:fix": "prettier -w --config .prettierrc src/",
+    "release": "release-it --only-version",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "tscheck": "tsc --noEmit -p ./tsconfig.json",
-    "lint": "npm run prettier:check && npm run tscheck"
+    "watch": "parcel watch"
   },
   "repository": {
     "type": "git",
