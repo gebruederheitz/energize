@@ -1,6 +1,6 @@
 {
   "name": "@gebruederheitz/energize",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "Reactive DOM operations with plain ES6+",
   "source": "src/index.ts",
   "main": "dist/index.js",
