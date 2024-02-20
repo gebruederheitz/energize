@@ -165,8 +165,20 @@ export class EnhancedElement<
             this.element.removeEventListener(eventName, callback, options);
         };
     }
+
+    public show(): this {
+        if (this.visible) return this;
+
+        const classes = this.getClassNames();
+        this.removeClass(classes.hidden);
+        this.setAttribute('aria-hidden', 'false');
+        this.visible = true;
+
+        return this;
+    }
+
     public hide(): this {
-        if (!this.visible) return;
+        if (!this.visible) return this;
 
         const classes = this.getClassNames();
         this.addClass(classes.hidden);
