@@ -1,0 +1,57 @@
+version: 3
+tasks:
+  install-languages:
+    run: once
+    status:
+      - asdf current nodejs
+    cmds:
+      - asdf install
+
+  install-dependencies:
+    internal: true
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/**/*
+    deps:
+      - task: install-languages
+    cmds:
+      - asdf exec npm i
+
+  update-dependencies:
+    desc: Update all dependencies for the widgets
+    deps:
+      - task: install-languages
+    cmds:
+      - asdf exec npm update
+
+  dev:
+    desc: Build & watch the widgets
+    deps:
+      - task: install-dependencies
+    cmds:
+      - asdf exec npm run watch
+
+  build:
+    desc: Build the widgets for production
+    deps:
+      - task: install-dependencies
+    cmds:
+      - asdf exec npm run build
+
+  lint:
+    aliases:
+      - test
+    desc: Perform linting and code style checks on the widgets
+    deps:
+      - task: install-dependencies
+    cmds:
+      - asdf exec npm run lint
+
+  release:
+    desc: Create a new release and publish it to GitHub & NPM
+    deps:
+      - task: install-dependencies
+    cmds:
+      - asdf exec npm run release
