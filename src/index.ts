@@ -117,14 +117,19 @@ export class EnhancedElement<
         Component: C,
         store: EEStoreType<E> = null,
         ...additionalArgs: EEConstructorArgs<C>
-    ): E {
+    ): E | null {
         const element = document.querySelector<T>(selector);
-        const enhanced = new Component(element, ...additionalArgs) as E;
-        if (store) {
-            enhanced.connect(store);
+
+        if (element) {
+            const enhanced = new Component(element, ...additionalArgs) as E;
+            if (store) {
+                enhanced.connect(store);
+            }
+
+            return enhanced;
         }
 
-        return enhanced;
+        return null;
     }
 
     public static enhanceAll<
