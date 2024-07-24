@@ -4,17 +4,43 @@
   "description": "Reactive DOM operations with plain ES6+",
   "source": "src/index.ts",
   "main": "dist/index.js",
-  "module": "dist/energize.mjs",
-  "types": "dist/types.d.ts",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/esm/index.js"
+    },
+    "./animations": {
+      "types": "./dist/types/animations/index.d.ts",
+      "require": "./dist/animations/index.js",
+      "import": "./dist/animations/esm/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "dist/types/index.d.ts"
+      ],
+      "./animations": [
+        "dist/types/animations/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
-    "build": "parcel build",
+    "prebuild": "rm -rf dist/",
+    "build": "rollup -c rollup.config.mjs",
+    "build:styles": "gulp",
     "lint": "npm run prettier:check && npm run tscheck",
     "prettier:check": "prettier -c --config .prettierrc src/",
     "prettier:fix": "prettier -w --config .prettierrc src/",
     "release": "release-it --only-version",
     "test": "echo \"Error: no test specified\" && exit 1",
     "tscheck": "tsc --noEmit -p ./tsconfig.json",
-    "watch": "parcel watch"
+    "prewatch": "rm -rf dist/",
+    "watch": "rollup -c rollup.config.mjs --watch",
+    "watch:styles": "gulp watch"
   },
   "repository": {
     "type": "git",
@@ -30,14 +56,22 @@
   },
   "homepage": "https://github.com/gebruederheitz/energize#readme",
   "devDependencies": {
-    "@parcel/packager-ts": "^2.11.0",
-    "@parcel/transformer-typescript-types": "^2.11.0",
-    "parcel": "^2.11.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "autoprefixer": "^10.4.19",
+    "cssnano": "^7.0.4",
+    "gulp": "^5.0.0",
+    "gulp-dart-sass": "^1.1.0",
+    "gulp-postcss": "^10.0.0",
     "prettier": "^3.2.5",
     "release-it": "^17.1.1",
+    "rollup": "^4.19.0",
     "typescript": "^5.3.3"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "svelte": "^4.2.18"
   }
 }

@@ -1,0 +1,110 @@
+/// @gebruederheitz/energize/animations
+:root {
+    --energize-transition-enter-speed: 0.5s;
+    --energize-transition-exit-speed: 0.45s;
+}
+
+.energize-transitions {
+    --min-height: 5rem;
+    --energize-transition-enter-animation: energize-show-crossfade;
+    --energize-transition-exit-animation: energize-show-crossfade;
+    --energize-transition-enter-direction: forward;
+    --energize-transition-exit-direction: reverse;
+    --energize-transition-enter-delay: 0;
+
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    min-height: var(--min-height);
+    transition: min-height 200ms ease;
+
+    .energize-transition {
+        margin: 0 !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        transform-origin: center;
+
+        &.hidden {
+            display: none;
+        }
+
+        &.entering {
+            animation-name: var(--energize-transition-enter-animation);
+            animation-direction: var(--energize-transition-enter-direction);
+            animation-duration: var(--energize-transition-enter-speed);
+            animation-timing-function: ease-in-out;
+            animation-delay: var(--energize-transition-enter-delay);
+            z-index: 1;
+        }
+
+        &.exiting {
+            animation-name: var(--energize-transition-exit-animation);
+            animation-direction: var(--energize-transition-exit-direction);
+            animation-duration: var(--energize-transition-exit-speed);
+            animation-timing-function: ease-in-out;
+        }
+    }
+
+    &.crossfade {
+        --energize-transition-enter-animation: energize-show-crossfade;
+        --energize-transition-exit-animation: energize-show-crossfade;
+    }
+
+    &.blinds {
+        --energize-transition-enter-animation: energize-show-blinds;
+        --energize-transition-exit-animation: energize-show-blinds-exit;
+        --energize-transition-exit-direction: forward;
+    }
+
+    &.zoom {
+        --energize-transition-enter-animation: energize-show-zoom;
+        --energize-transition-exit-animation: energize-show-zoom;
+    }
+}
+
+@keyframes energize-show-crossfade {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes energize-show-zoom {
+    0% {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes energize-show-blinds {
+    0% {
+        transform: translateY(100%);
+    }
+
+    100% {
+        transform: translateY(0%);
+    }
+}
+
+@keyframes energize-show-blinds-exit {
+    0% {
+        transform: translateY(0%);
+    }
+
+    100% {
+        transform: translateY(-100%);
+    }
+}

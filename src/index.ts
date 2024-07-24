@@ -184,7 +184,7 @@ export class EnhancedElement<
     public on(
         eventName: string,
         callback: EventListenerOrEventListenerObject,
-        options?: boolean | EventListenerOptions
+        options?: boolean | (EventListenerOptions & AddEventListenerOptions)
     ): () => void {
         this.element.addEventListener(eventName, callback, options);
 
