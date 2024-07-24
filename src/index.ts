@@ -167,9 +167,12 @@ export class EnhancedElement<
     public connect<Sx extends StoreType<any>>(store: Sx): this {
         this.store = store as unknown as S;
         this.unsubscribe = store.subscribe(this.onStateUpdate.bind(this));
+        this.onAfterConnect();
 
         return this;
     }
+
+    protected onAfterConnect() {}
 
     public getElement(): ET {
         return this.element;
