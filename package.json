@@ -16,6 +16,10 @@
       "types": "./dist/types/animations/index.d.ts",
       "require": "./dist/animations/index.js",
       "import": "./dist/animations/esm/index.js"
+    },
+    "./animations.css": {
+      "require": "./dist/animations/styles.css",
+      "import": "./dist/animations/styles.css"
     }
   },
   "typesVersions": {
