@@ -28,7 +28,6 @@ export class EnhancedTransitionElement<
 
     protected onEntered() {
         const classes = this.getClassNames();
-        // this.removeClass(classes.hidden, classes.transitioning);
         this.removeClass(classes.entering);
         this.visible = true;
     }
@@ -50,7 +49,6 @@ export class EnhancedTransitionElement<
         this.addClass(classes.entering);
         this.removeClass(classes.hidden);
         this.setAttribute('aria-hidden', 'false');
-        console.log('show triggering transitionStore update');
         window.requestAnimationFrame(() => {
             EnhancedTransitionElement.transitionStore.update(() => this);
         });
@@ -90,14 +88,9 @@ class TransitionsContainer extends EnhancedElement<HTMLElement> {
             (
                 enteringElement: EnhancedTransitionElement<HTMLElement> | null
             ) => {
-                console.log('transition store update', { enteringElement });
                 if (enteringElement) {
                     const elementHeight =
                         enteringElement.getElement().offsetHeight;
-                    console.log(
-                        'setting new element height in px',
-                        elementHeight
-                    );
                     this.element.style.setProperty(
                         '--min-height',
                         `${elementHeight}px`
