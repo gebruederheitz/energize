@@ -521,3 +521,53 @@ export function energize<
         ...additionalArgs
     );
 }
+
+export function energizeAll<
+    T extends HTMLElement,
+    Sx extends StoreType<any> | void = void,
+    STx extends any = any,
+>(
+    selector: string,
+    searchRoot?: Element | Document
+): EnhancedElement<T, Sx, STx>[] | null;
+
+export function energizeAll<
+    T extends HTMLElement,
+    C extends EEConstructor<T, any>,
+    E extends EnhancedElement<T, any> = InstanceType<C>,
+>(
+    selector: string,
+    energizer: C,
+    store?: EEStoreType<E>,
+    ...additionalArgs: EEConstructorArgs<C>
+): E[];
+export function energizeAll<
+    T extends HTMLElement,
+    C extends EEConstructor<T, any>,
+    E extends EnhancedElement<T, any>,
+    Sx extends StoreType<any> | void = void,
+    STx extends any = any,
+>(
+    selector: string,
+    energizer: C | Element | Document = null,
+    store: EEStoreType<E> = null,
+    ...additionalArgs: EEConstructorArgs<C>
+): E[] | EnhancedElement<T, Sx, STx>[] | null {
+    if (
+        !energizer ||
+        energizer instanceof Element ||
+        energizer instanceof Document
+    ) {
+        return EnhancedElement.fromSelectorAll(
+            selector,
+            energizer as null | Element | Document
+        );
+    }
+
+    return EnhancedElement.enhanceAll(
+        selector,
+        energizer,
+        store,
+        ...additionalArgs
+    );
+}
