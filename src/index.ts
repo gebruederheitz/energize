@@ -159,6 +159,15 @@ export class EnhancedElement<
             this.visible = false;
             this.setAttribute('aria-hidden', 'true');
         }
+        if (
+            this.visible &&
+            this.element.getAttribute('aria-hidden') === 'true'
+        ) {
+            this.visible = false;
+            this.addClass(classes.hidden);
+        }
+
+        this.onInit();
     }
 
     /**
@@ -172,7 +181,15 @@ export class EnhancedElement<
         return this;
     }
 
-    protected onAfterConnect() {}
+    protected onAfterConnect(): void {}
+
+    protected onInit(): void {}
+
+    protected onShown(): void {}
+
+    protected onHidden(): void {}
+
+    protected onDestroyed(): void {}
 
     public getElement(): ET {
         return this.element;
@@ -201,6 +218,8 @@ export class EnhancedElement<
         this.setAttribute('aria-hidden', 'false');
         this.visible = true;
 
+        this.onShown();
+
         return this;
     }
 
@@ -211,6 +230,8 @@ export class EnhancedElement<
         this.addClass(classes.hidden);
         this.setAttribute('aria-hidden', 'true');
         this.visible = false;
+
+        this.onHidden();
 
         return this;
     }
@@ -285,6 +306,8 @@ export class EnhancedElement<
                 this.unsubscribe();
             }
         }
+
+        this.onDestroyed();
     }
 
     public clone(): EnhancedElement<ET, S, STATE> {
