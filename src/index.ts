@@ -34,6 +34,7 @@ export class EnhancedElement<
     ET extends HTMLElement,
     S extends StoreType<STATE> | void = void,
     STATE extends any = any,
+    InitArgs extends unknown[] = [],
 > {
     protected visible: boolean = true;
     // for connected elements:
@@ -167,7 +168,7 @@ export class EnhancedElement<
             this.addClass(classes.hidden);
         }
 
-        this.onInit();
+        this.onInit(...([] as InitArgs));
     }
 
     /**
@@ -183,7 +184,7 @@ export class EnhancedElement<
 
     protected onAfterConnect(): void {}
 
-    protected onInit(): void {}
+    protected onInit(...args: InitArgs): void {}
 
     protected onShown(): void {}
 
