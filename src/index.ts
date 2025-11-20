@@ -17,7 +17,7 @@ export interface EEConstructor<
     ET extends HTMLElement,
     S extends StoreType<STATE> | void,
     STATE extends any = any,
-    InitArgs extends unknown[] = [],
+    InitArgs extends unknown = undefined,
 > {
     new (element: ET, ...args: any[]): EnhancedElement<ET, S, STATE, InitArgs>;
 }
@@ -35,7 +35,7 @@ export class EnhancedElement<
     ET extends HTMLElement,
     S extends StoreType<STATE> | void = void,
     STATE extends any = any,
-    InitArgs extends unknown[] = [],
+    InitOptionsArg extends unknown = undefined,
 > {
     protected visible: boolean = true;
     // for connected elements:
@@ -47,7 +47,7 @@ export class EnhancedElement<
         T extends HTMLElement,
         Sx extends StoreType<STx> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(element: T): EnhancedElement<T, Sx, STx, Ia> {
         return new EnhancedElement(element);
     }
@@ -56,7 +56,7 @@ export class EnhancedElement<
         ETS extends keyof HTMLElementTagNameMap,
         Sx extends StoreType<STx> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(
         elementType: ETS
     ): EnhancedElement<HTMLElementTagNameMap[ETS], Sx, STx, Ia> {
@@ -68,7 +68,7 @@ export class EnhancedElement<
     public static fromNewDiv<
         Sx extends StoreType<STx> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(): EnhancedElement<HTMLDivElement, Sx, STx, Ia> {
         return EnhancedElement.fromElementType('div');
     }
@@ -77,7 +77,7 @@ export class EnhancedElement<
         S extends keyof HTMLElementTagNameMap,
         Sx extends StoreType<STx> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(
         definition: CreateElementDefinition<S>
     ): EnhancedElement<HTMLElementTagNameMap[S], Sx, STx, Ia> {
@@ -90,7 +90,7 @@ export class EnhancedElement<
         T extends HTMLElement,
         Sx extends StoreType<any> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(
         selector: string,
         searchRoot: Element | Document = document
@@ -107,7 +107,7 @@ export class EnhancedElement<
         T extends HTMLElement,
         Sx extends StoreType<STx> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(
         selector: string,
         searchRoot: Element | Document = document
@@ -177,7 +177,7 @@ export class EnhancedElement<
             this.addClass(classes.hidden);
         }
 
-        this.onInit(...([] as InitArgs));
+        this.onInit();
     }
 
     /**
@@ -193,7 +193,7 @@ export class EnhancedElement<
 
     protected onAfterConnect(): void {}
 
-    protected onInit(...args: InitArgs): void {}
+    protected onInit(options?: InitOptionsArg): void {}
 
     protected onShown(): void {}
 
@@ -320,7 +320,7 @@ export class EnhancedElement<
         this.onDestroyed();
     }
 
-    public clone(): EnhancedElement<ET, S, STATE, InitArgs> {
+    public clone(): EnhancedElement<ET, S, STATE, InitOptionsArg> {
         const clonedElement = this.element.cloneNode(true) as ET;
         return new EnhancedElement<ET, S>(clonedElement);
     }
@@ -366,7 +366,7 @@ export class EnhancedElement<
         T extends HTMLElement,
         Sx extends StoreType<STx> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(selector: string): EnhancedElement<T, Sx, STx, Ia> | null {
         const baseElement = this.find<T>(selector);
         return baseElement
@@ -378,7 +378,7 @@ export class EnhancedElement<
         T extends HTMLElement,
         Sx extends StoreType<any> | void = void,
         STx extends any = any,
-        Ia extends unknown[] = [],
+        Ia extends unknown = undefined,
     >(selector: string, store: Sx = null): EnhancedElement<T, Sx, STx, Ia>[] {
         return this.findAll<T>(selector, true).map((e) => {
             const enhanced = new EnhancedElement<T, Sx, STx, Ia>(e);
@@ -510,7 +510,7 @@ export function energize<
     T extends HTMLElement,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,
-    Ia extends unknown[] = [],
+    Ia extends unknown = undefined,
 >(
     selector: string,
     searchRoot?: Element | Document
@@ -533,7 +533,7 @@ export function energize<
     E extends EnhancedElement<T, any>,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,
-    Ia extends unknown[] = [],
+    Ia extends unknown = undefined,
 >(
     selector: string,
     energizer: C | Element | Document = null,
@@ -563,7 +563,7 @@ export function energizeAll<
     T extends HTMLElement,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,
-    Ia extends unknown[] = [],
+    Ia extends unknown = undefined,
 >(
     selector: string,
     searchRoot?: Element | Document
@@ -585,7 +585,7 @@ export function energizeAll<
     E extends EnhancedElement<T, any>,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,
-    Ia extends unknown[] = [],
+    Ia extends unknown = undefined,
 >(
     selector: string,
     energizer: C | Element | Document = null,
