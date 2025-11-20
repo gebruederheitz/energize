@@ -1,16 +1,14 @@
 import { energize, StoreType, EnhancedElement } from '../index';
-import type { Writable } from 'svelte/store';
-
-import { writable } from 'svelte/store';
+import { atom, type WritableAtom } from 'nanostores';
 
 export class EnhancedTransitionElement<
     E extends HTMLElement,
     S extends StoreType<unknown> | void = void,
 > extends EnhancedElement<E, S> {
-    public static transitionStore: Writable<EnhancedTransitionElement<
+    public static transitionStore: WritableAtom<EnhancedTransitionElement<
         HTMLElement,
         StoreType<any> | void
-    > | null> = writable(null);
+    > | null> = atom(null);
 
     constructor(e: E, startsHidden: boolean = false) {
         super(e);
@@ -50,7 +48,7 @@ export class EnhancedTransitionElement<
         this.removeClass(classes.hidden);
         this.setAttribute('aria-hidden', 'false');
         window.requestAnimationFrame(() => {
-            EnhancedTransitionElement.transitionStore.update(() => this);
+            EnhancedTransitionElement.transitionStore.set(this);
         });
 
         return this;

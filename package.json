@@ -60,22 +60,22 @@
   },
   "homepage": "https://github.com/gebruederheitz/energize#readme",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "autoprefixer": "^10.4.19",
-    "cssnano": "^7.0.4",
-    "gulp": "^5.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "autoprefixer": "^10.4.22",
+    "cssnano": "^7.1.2",
+    "gulp": "^5.0.1",
     "gulp-dart-sass": "^1.1.0",
     "gulp-postcss": "^10.0.0",
-    "prettier": "^3.2.5",
-    "release-it": "^17.1.1",
-    "rollup": "^4.19.0",
-    "typescript": "^5.3.3"
+    "prettier": "^3.6.2",
+    "release-it": "^19.0.6",
+    "rollup": "^4.53.3",
+    "typescript": "^5.9.3"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "svelte": "^4.2.18"
+    "nanostores": "^1.1.0"
   }
 }
