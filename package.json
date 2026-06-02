@@ -1,81 +1,81 @@
 {
-  "name": "@gebruederheitz/energize",
-  "version": "1.5.3",
-  "description": "Reactive DOM operations with plain ES6+",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/types/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/esm/index.js"
+    "name": "@gebruederheitz/energize",
+    "version": "1.5.3",
+    "description": "Reactive DOM operations with plain ES6+",
+    "source": "src/index.ts",
+    "main": "dist/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/types/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/types/index.d.ts",
+            "require": "./dist/index.js",
+            "import": "./dist/esm/index.js"
+        },
+        "./animations": {
+            "types": "./dist/types/animations/index.d.ts",
+            "require": "./dist/animations/index.js",
+            "import": "./dist/animations/esm/index.js"
+        },
+        "./animations.css": {
+            "require": "./dist/animations/styles.css",
+            "import": "./dist/animations/styles.css"
+        }
     },
-    "./animations": {
-      "types": "./dist/types/animations/index.d.ts",
-      "require": "./dist/animations/index.js",
-      "import": "./dist/animations/esm/index.js"
+    "typesVersions": {
+        "*": {
+            ".": [
+                "dist/types/index.d.ts"
+            ],
+            "./animations": [
+                "dist/types/animations/index.d.ts"
+            ]
+        }
     },
-    "./animations.css": {
-      "require": "./dist/animations/styles.css",
-      "import": "./dist/animations/styles.css"
+    "scripts": {
+        "prebuild": "rm -rf dist/",
+        "build": "rollup -c rollup.config.mjs",
+        "build:styles": "gulp",
+        "lint": "npm run prettier:check && npm run tscheck",
+        "prettier:check": "prettier -c --config .prettierrc src/",
+        "prettier:fix": "prettier -w --config .prettierrc src/",
+        "release": "release-it --only-version",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "tscheck": "tsc --noEmit -p ./tsconfig.json",
+        "prewatch": "rm -rf dist/",
+        "watch": "rollup -c rollup.config.mjs --watch",
+        "watch:styles": "gulp watch"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gebruederheitz/energize.git"
+    },
+    "keywords": [
+        "DOM"
+    ],
+    "author": "Andreas Gallus <andreas.gallus@gebruederheitz.de>",
+    "license": "GPL-3.0-only",
+    "bugs": {
+        "url": "https://github.com/gebruederheitz/energize/issues"
+    },
+    "homepage": "https://github.com/gebruederheitz/energize#readme",
+    "devDependencies": {
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-typescript": "^12.3.0",
+        "autoprefixer": "^10.5.0",
+        "cssnano": "^8.0.1",
+        "gulp": "^5.0.1",
+        "gulp-dart-sass": "^1.1.0",
+        "gulp-postcss": "^10.0.0",
+        "prettier": "^3.8.3",
+        "release-it": "^20.2.0",
+        "rollup": "^4.61.0",
+        "typescript": "^6.0.3"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
+        "nanostores": "^1.3.0"
     }
-  },
-  "typesVersions": {
-    "*": {
-      ".": [
-        "dist/types/index.d.ts"
-      ],
-      "./animations": [
-        "dist/types/animations/index.d.ts"
-      ]
-    }
-  },
-  "scripts": {
-    "prebuild": "rm -rf dist/",
-    "build": "rollup -c rollup.config.mjs",
-    "build:styles": "gulp",
-    "lint": "npm run prettier:check && npm run tscheck",
-    "prettier:check": "prettier -c --config .prettierrc src/",
-    "prettier:fix": "prettier -w --config .prettierrc src/",
-    "release": "release-it --only-version",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tscheck": "tsc --noEmit -p ./tsconfig.json",
-    "prewatch": "rm -rf dist/",
-    "watch": "rollup -c rollup.config.mjs --watch",
-    "watch:styles": "gulp watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gebruederheitz/energize.git"
-  },
-  "keywords": [
-    "DOM"
-  ],
-  "author": "Andreas Gallus <andreas.gallus@gebruederheitz.de>",
-  "license": "GPL-3.0-only",
-  "bugs": {
-    "url": "https://github.com/gebruederheitz/energize/issues"
-  },
-  "homepage": "https://github.com/gebruederheitz/energize#readme",
-  "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-typescript": "^12.3.0",
-    "autoprefixer": "^10.4.22",
-    "cssnano": "^7.1.2",
-    "gulp": "^5.0.1",
-    "gulp-dart-sass": "^1.1.0",
-    "gulp-postcss": "^10.0.0",
-    "prettier": "^3.6.2",
-    "release-it": "^20.0.0",
-    "rollup": "^4.53.3",
-    "typescript": "^5.9.3"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "dependencies": {
-    "nanostores": "^1.1.0"
-  }
 }
