@@ -41,6 +41,7 @@ function hybridBuild(entryPoint, targetDir, emitTypes = false) {
                         declaration: false,
                         target: 'esnext',
                         module: 'esnext',
+                        moduleResolution: 'bundler',
                     },
                 }),
             ],

@@ -1,8 +1,10 @@
 .parcel-cache/
-src/
+/src/
 .prettierrc
 tsconfig.json
 .tool-versions
 .release-it.yaml
 .task/
 Taskfile.yaml
+rollup.config.mjs
+Gulpfile.mjs

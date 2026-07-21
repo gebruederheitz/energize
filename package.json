@@ -35,6 +35,7 @@
     "scripts": {
         "prebuild": "rm -rf dist/",
         "build": "rollup -c rollup.config.mjs",
+        "postbuild": "cp src/store.d.ts dist/types/",
         "build:styles": "gulp",
         "lint": "npm run prettier:check && npm run tscheck",
         "prettier:check": "prettier -c --config .prettierrc src/",
