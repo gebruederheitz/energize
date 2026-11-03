@@ -8,3 +8,5 @@ tsconfig.json
 Taskfile.yaml
 rollup.config.mjs
 Gulpfile.mjs
+CLAUDE.md
+CLAUDE.local.md

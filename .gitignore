@@ -5,3 +5,4 @@ yarn-error.log
 dist/
 .parcel-cache/
 .task/
+CLAUDE.local.md

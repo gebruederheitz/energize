@@ -8,7 +8,8 @@ HTML elements into stateful reactive components.
 
 Our real-word scenario is turning a Webflow site into an interactive application,
 with stateful elements communicating with an external API. It can connect to any
-store fulfilling the Svelte store contract; we recommend 
+store with a `subscribe(callback)` method that returns an unsubscribe function
+(such as a Svelte store); we recommend
 [`nanostores`](https://www.npmjs.com/package/nanostores).
 
 
