@@ -220,3 +220,16 @@ For coordinating several transitioning elements, see the
 [crossfade example](examples/crossfade/): a container that crossfades between
 views, connected to a minimal custom store. It replaces the `/animations`
 entry of energize 1.x.
+
+To run the examples in a clone of this repository, build the package
+(`task build` or `npm run build`), serve the repository root with any static
+file server and open `/examples/crossfade/`. For example:
+
+```sh
+npx sirv-cli . --dev
+# then open http://localhost:8080/examples/crossfade/
+```
+
+The examples import the package from `dist/` and need a server, because
+browsers don't load ES modules from `file://` pages. `--dev` turns off caching,
+so with `task dev` running, a reload picks up changes to the library.
