@@ -18,7 +18,7 @@ export function energize<
 
 export function energize<
     T extends HTMLElement,
-    C extends EEConstructor<T, any>,
+    C extends EEConstructor<any, any>,
     E extends EnhancedElement<T, any> = InstanceType<C>,
 >(
     selector: string,
@@ -29,7 +29,7 @@ export function energize<
 
 export function energize<
     T extends HTMLElement,
-    C extends EEConstructor<T, any>,
+    C extends EEConstructor<any, any>,
     E extends EnhancedElement<T, any>,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,
@@ -43,7 +43,7 @@ export function energize<
 
 export function energize<
     T extends HTMLElement,
-    C extends EEConstructor<T, any>,
+    C extends EEConstructor<any, any>,
     E extends EnhancedElement<T, any>,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,
@@ -85,7 +85,7 @@ export function energizeAll<
 
 export function energizeAll<
     T extends HTMLElement,
-    C extends EEConstructor<T, any>,
+    C extends EEConstructor<any, any>,
     E extends EnhancedElement<T, any> = InstanceType<C>,
 >(
     selector: string,
@@ -95,7 +95,7 @@ export function energizeAll<
 ): E[];
 export function energizeAll<
     T extends HTMLElement,
-    C extends EEConstructor<T, any>,
+    C extends EEConstructor<any, any>,
     E extends EnhancedElement<T, any>,
     Sx extends StoreType<any> | void = void,
     STx extends any = any,

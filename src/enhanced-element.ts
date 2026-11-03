@@ -115,7 +115,7 @@ export class EnhancedElement<
 
     public static enhance<
         T extends HTMLElement,
-        C extends EEConstructor<T, any>,
+        C extends EEConstructor<any, any>,
         E extends EnhancedElement<T, any> = InstanceType<C>,
     >(
         selector: string,
@@ -139,7 +139,7 @@ export class EnhancedElement<
 
     public static enhanceAll<
         T extends HTMLElement,
-        C extends EEConstructor<T, any>,
+        C extends EEConstructor<any, any>,
         E extends EnhancedElement<T, any> = InstanceType<C>,
     >(
         selector: string,
