@@ -9,3 +9,5 @@ Taskfile.yaml
 CLAUDE.md
 CLAUDE.local.md
 /examples/
+/test/
+vitest.config.mts
