@@ -1,5 +1,5 @@
-import { StoreType } from './store';
-import { createElement } from './create-element';
+import type { StoreType } from './store.js';
+import { createElement } from './create-element.js';
 
 type CreateElementDefinition<S extends keyof HTMLElementTagNameMap> =
     Parameters<typeof createElement<HTMLElementTagNameMap[S]>>[0];

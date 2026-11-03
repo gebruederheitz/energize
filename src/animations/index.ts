@@ -1,4 +1,4 @@
-import { energize, StoreType, EnhancedElement } from '../index';
+import { energize, EnhancedElement, type StoreType } from '../index.js';
 import { atom, type WritableAtom } from 'nanostores';
 
 export class EnhancedTransitionElement<
