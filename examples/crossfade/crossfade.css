@@ -1,0 +1,77 @@
+/*
+ * Items are stacked in a single grid cell, so the container takes the height
+ * of whichever items are displayed: both while crossfading, then the new one.
+ * Pick a variant with a modifier class on the container: .zoom or .blinds.
+ */
+.crossfade {
+    --crossfade-duration: 450ms;
+    --crossfade-enter: crossfade-fade;
+    --crossfade-exit: crossfade-fade;
+    --crossfade-exit-direction: reverse;
+
+    display: grid;
+    overflow: hidden;
+}
+
+.crossfade > * {
+    grid-area: 1 / 1;
+}
+
+.crossfade > .hidden {
+    display: none;
+}
+
+.crossfade > .show {
+    animation: var(--crossfade-enter) var(--crossfade-duration) ease-in-out;
+    z-index: 1;
+}
+
+.crossfade > .hide {
+    animation: var(--crossfade-exit) var(--crossfade-duration) ease-in-out
+        var(--crossfade-exit-direction) both;
+}
+
+.crossfade.zoom {
+    --crossfade-enter: crossfade-zoom;
+    --crossfade-exit: crossfade-zoom;
+}
+
+.crossfade.blinds {
+    --crossfade-enter: crossfade-blinds-in;
+    --crossfade-exit: crossfade-blinds-out;
+    --crossfade-exit-direction: normal;
+}
+
+@keyframes crossfade-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes crossfade-zoom {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes crossfade-blinds-in {
+    from {
+        transform: translateY(100%);
+    }
+}
+
+@keyframes crossfade-blinds-out {
+    to {
+        transform: translateY(-100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .crossfade {
+        --crossfade-duration: 1ms;
+    }
+}

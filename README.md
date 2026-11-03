@@ -215,3 +215,8 @@ panel?.show();
 
 `delayedHideTransition` does the same in the other direction: it adds `hidden`
 right after `hide()` starts, so the transition runs towards the `hidden` styles.
+
+For coordinating several transitioning elements, see the
+[crossfade example](examples/crossfade/): a container that crossfades between
+views, connected to a minimal custom store. It replaces the `/animations`
+entry of energize 1.x.

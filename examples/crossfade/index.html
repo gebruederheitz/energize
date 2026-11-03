@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>energize: crossfade example</title>
+        <link rel="stylesheet" href="crossfade.css" />
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                max-width: 40rem;
+                margin: 2rem auto;
+                padding: 0 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+                border-radius: 0.5rem;
+                background: #eef2f7;
+            }
+            .card.tall {
+                padding-block: 4rem;
+            }
+            nav {
+                display: flex;
+                gap: 0.5rem;
+                margin-block: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Crossfade</h1>
+
+        <label>
+            Variant
+            <select id="variant">
+                <option value="">fade</option>
+                <option value="zoom">zoom</option>
+                <option value="blinds">blinds</option>
+            </select>
+        </label>
+
+        <nav>
+            <button type="button" data-select="first">First</button>
+            <button type="button" data-select="second">Second</button>
+            <button type="button" data-select="third">Third</button>
+        </nav>
+
+        <!-- Every item but the initial one starts with the "hidden" class. -->
+        <div class="crossfade" id="views">
+            <div class="card" data-crossfade-item="first">First view</div>
+            <div class="card tall hidden" data-crossfade-item="second">
+                Second view, taller
+            </div>
+            <div class="card hidden" data-crossfade-item="third">
+                Third view
+            </div>
+        </div>
+
+        <script type="module">
+            import { energize, energizeAll } from '../../dist/index.js';
+            import { Crossfade, createStore } from './crossfade.js';
+
+            const store = createStore('first');
+            const views = energize('#views', Crossfade, store);
+
+            for (const button of energizeAll('[data-select]')) {
+                button.on('click', () => store.set(button.dataset.select));
+            }
+
+            document
+                .getElementById('variant')
+                .addEventListener('change', (e) => {
+                    views.removeClass('zoom', 'blinds');
+                    if (e.target.value) views.addClass(e.target.value);
+                });
+        </script>
+    </body>
+</html>
