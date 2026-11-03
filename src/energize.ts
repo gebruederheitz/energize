@@ -3,8 +3,8 @@ import {
     EEConstructorArgs,
     EEStoreType,
     EnhancedElement,
-} from './enhanced-element';
-import { StoreType } from './store';
+} from './enhanced-element.js';
+import type { StoreType } from './store.js';
 
 export function energize<
     T extends HTMLElement,

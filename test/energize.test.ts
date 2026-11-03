@@ -52,8 +52,7 @@ describe('energize', () => {
             expect(energize('.item', document).getElement().id).toBe('first');
         });
 
-        // Defect #31: energize() passes null, so fromSelector's document default never applies.
-        it.fails('searches the document when no root is given', () => {
+        it('searches the document when no root is given', () => {
             expect(energize('.item').getElement().id).toBe('first');
         });
 
@@ -104,8 +103,7 @@ describe('energizeAll', () => {
             ]);
         });
 
-        // Defect #31: energizeAll() passes null, so fromSelectorAll's document default never applies.
-        it.fails('searches the document when no root is given', () => {
+        it('searches the document when no root is given', () => {
             expect(ids(energizeAll('.item'))).toEqual([
                 'first',
                 'second',

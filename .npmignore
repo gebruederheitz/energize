@@ -6,7 +6,6 @@ tsconfig.json
 .release-it.yaml
 .task/
 Taskfile.yaml
-rollup.config.mjs
 Gulpfile.mjs
 CLAUDE.md
 CLAUDE.local.md

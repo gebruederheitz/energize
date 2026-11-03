@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The Taskfile wraps the npm scripts with `asdf exec` and reinstalls dependencies when `package.json`/`package-lock.json` change:
 
-- `task dev`: watch JS (rollup) and SCSS (gulp) in parallel (`npm run watch` + `npm run watch:styles`)
+- `task dev`: watch TypeScript (`tsc --watch`) and SCSS (gulp) in parallel (`npm run watch` + `npm run watch:styles`)
 - `task build`: `npm run build`, then `npm run build:styles`
 - `task lint`: `npm run lint`, which runs `prettier:check` and `tscheck` (`tsc` on `tsconfig.json` and on `test/tsconfig.json`)
 - `task test`: `npm test`, which runs the vitest suite once; `npm run test:watch` keeps it running
@@ -28,11 +28,11 @@ Don't run `build:styles` before `build`: the `prebuild` hook deletes all of `dis
 
 ## Build pipeline
 
-- `rollup.config.mjs`: `hybridBuild(entry, dir, emitTypes)` runs a CJS pass into `<dir>` and an ESM pass into `<dir>/esm` for each of the two entry points, `src/index.ts` → `dist/` and `src/animations/index.ts` → `dist/animations/`. Only the ESM pass overrides `module`/`moduleResolution`. The CJS pass inherits `tsconfig.json`.
-- Declarations are emitted only by the core build. Because `tsconfig.json` includes all of `src/`, they still cover the animations entry (`dist/types/animations/`).
-- `src/store.d.ts` is a hand-written declaration file that tsc does not emit, so `postbuild` copies it into `dist/types/`. The other modules import it as `./store`.
+- The package is ESM-only (`"type": "module"`) and has no bundler. `tsc` compiles every file under `src/` one to one into `dist/`, with declarations and source maps next to the JS. Entry points share modules, so `/animations` imports the core from `../index.js` instead of carrying its own copy.
+- Because of `module: nodenext`, relative imports in `src/` must use the `.js` extension of the emitted file (`'./store.js'`, not `'./store'`).
+- `src/store.ts` holds only types (the `StoreType` contract); import it with `import type`.
 - `Gulpfile.mjs` compiles `src/**/*.scss` into `dist/` and keeps the paths (`src/animations/styles.scss` → `dist/animations/styles.css`). cssnano runs only outside watch mode.
-- The public surface is the `exports` map plus `typesVersions` in `package.json` (`.`, `./animations`, `./animations.css`). A new entry point needs changes in `rollup.config.mjs`, `exports` and `typesVersions`.
+- The public surface is the `exports` map in `package.json` (`.`, `./animations`, `./animations.css`); each JS entry has a `types` and a `default` condition. A new entry point only needs an `exports` entry, and an entry in `sideEffects` if importing it does something.
 - `dist/` is gitignored. `.npmignore` replaces `.gitignore` for npm, so any new repo-only file must be added there or it ends up in the published package.
 
 ## Architecture
