@@ -22,6 +22,7 @@ The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The T
 - The tests live in `test/`, one file per area, and import the library from `../src/`. `vitest.config.mts` sets the environment to happy-dom, because jsdom doesn't implement `innerText`, which `content()`, `getContent()` and `createElement` use.
 - `test/setup.ts` empties `document.body` after each test and works around a happy-dom gap: `document instanceof Document` is false there, which `energize`/`energizeAll` rely on.
 - `test/support/store.ts` is a minimal store that implements only `StoreType`; use it rather than a store library.
+- happy-dom doesn't compute transition or animation timings from stylesheets. `test/transitioning-element.test.ts` stubs `getComputedStyle` per element, uses fake timers for `requestAnimationFrame`/`setTimeout`, and dispatches the end events itself.
 - Tests describe intended behaviour. A known defect is an `it.fails` test with a comment that names the issue; when the fix lands, vitest reports it as failing until it becomes a plain `it`.
 
 ## Build pipeline
