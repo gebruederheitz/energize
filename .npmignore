@@ -9,3 +9,5 @@ Taskfile.yaml
 Gulpfile.mjs
 CLAUDE.md
 CLAUDE.local.md
+/test/
+vitest.config.mts

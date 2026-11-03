@@ -12,10 +12,19 @@ The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The T
 
 - `task dev`: watch TypeScript (`tsc --watch`) and SCSS (gulp) in parallel (`npm run watch` + `npm run watch:styles`)
 - `task build`: `npm run build`, then `npm run build:styles`
-- `task lint` (alias `task test`): `npm run lint`, which runs `prettier:check` and `tscheck` (`tsc --noEmit`)
-- `npm run prettier:fix`: format `src/`
+- `task lint`: `npm run lint`, which runs `prettier:check` and `tscheck` (`tsc` on `tsconfig.json` and on `test/tsconfig.json`)
+- `task test`: `npm test`, which runs the vitest suite once; `npm run test:watch` keeps it running
+- `task test -- test/stores.test.ts` runs a single file, `task test -- -t 'destroy'` the tests whose name matches; anything after `--` goes to vitest
+- `npm run prettier:fix`: format `src/`, `test/` and `vitest.config.mts`
 
-There is no test suite. `npm test` fails on purpose, and lint is the only check. Don't run `build:styles` before `build`: the `prebuild` hook deletes all of `dist/`, including the compiled CSS.
+Don't run `build:styles` before `build`: the `prebuild` hook deletes all of `dist/`, including the compiled CSS.
+
+## Tests
+
+- The tests live in `test/`, one file per area, and import the library from `../src/`. `vitest.config.mts` sets the environment to happy-dom, because jsdom doesn't implement `innerText`, which `content()`, `getContent()` and `createElement` use.
+- `test/setup.ts` empties `document.body` after each test and works around a happy-dom gap: `document instanceof Document` is false there, which `energize`/`energizeAll` rely on.
+- `test/support/store.ts` is a minimal store that implements only `StoreType`; use it rather than nanostores.
+- Tests describe intended behaviour. A known defect is an `it.fails` test with a comment that names the issue; when the fix lands, vitest reports it as failing until it becomes a plain `it`.
 
 ## Build pipeline
 
@@ -38,6 +47,6 @@ There is no test suite. `npm test` fails on purpose, and lint is the only check.
 
 ## Conventions
 
-- Prettier settings are in `.prettierrc`. Only `src/` is checked.
+- Prettier settings are in `.prettierrc`. `src/`, `test/` and `vitest.config.mts` are checked.
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`). Issue branches are named `issue/<number>-<slug>`.
 - `npm run release` runs `release-it --only-version` and is allowed only on `main`, `release/*` and `next`. Before it starts, it runs lint, build and build:styles. After the version bump it runs `npm i` and stages the lockfile. It commits `chore: Release v<version>`, tags, publishes to npm and opens the prefilled GitHub release form in the browser. Only run it when asked.

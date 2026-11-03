@@ -56,13 +56,18 @@ tasks:
       - asdf exec npm run build:styles
 
   lint:
-    aliases:
-      - test
     desc: Perform linting and code style checks on the widgets
     deps:
       - task: install-dependencies
     cmds:
       - asdf exec npm run lint
+
+  test:
+    desc: Run the test suite (pass vitest arguments after --)
+    deps:
+      - task: install-dependencies
+    cmds:
+      - asdf exec npm test -- {{.CLI_ARGS}}
 
   release:
     desc: Create a new release and publish it to GitHub & NPM
