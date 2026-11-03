@@ -88,9 +88,9 @@ export class EnhancedElement<
         Ia extends unknown = undefined,
     >(
         selector: string,
-        searchRoot: Element | Document = document
+        searchRoot: Element | Document | null = document
     ): EnhancedElement<T, Sx, STx, Ia> | null {
-        const element = searchRoot.querySelector<T>(selector);
+        const element = (searchRoot ?? document).querySelector<T>(selector);
         if (element) {
             return new EnhancedElement(element);
         }
@@ -105,9 +105,9 @@ export class EnhancedElement<
         Ia extends unknown = undefined,
     >(
         selector: string,
-        searchRoot: Element | Document = document
+        searchRoot: Element | Document | null = document
     ): EnhancedElement<T, Sx, STx, Ia>[] {
-        const elements = searchRoot.querySelectorAll<T>(selector);
+        const elements = (searchRoot ?? document).querySelectorAll<T>(selector);
         return Array.from(elements).map(
             (element) => new EnhancedElement<T, Sx, STx>(element)
         );
