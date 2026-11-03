@@ -7,21 +7,12 @@
         ".": {
             "types": "./dist/index.d.ts",
             "default": "./dist/index.js"
-        },
-        "./animations": {
-            "types": "./dist/animations/index.d.ts",
-            "default": "./dist/animations/index.js"
-        },
-        "./animations.css": "./dist/animations/styles.css"
+        }
     },
-    "sideEffects": [
-        "./dist/animations/index.js",
-        "*.css"
-    ],
+    "sideEffects": false,
     "scripts": {
         "prebuild": "rm -rf dist/",
         "build": "tsc -p tsconfig.json",
-        "build:styles": "gulp",
         "lint": "npm run prettier:check && npm run tscheck",
         "prettier:check": "prettier -c --config .prettierrc src/",
         "prettier:fix": "prettier -w --config .prettierrc src/",
@@ -29,8 +20,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "tscheck": "tsc --noEmit -p ./tsconfig.json",
         "prewatch": "rm -rf dist/",
-        "watch": "tsc -p tsconfig.json --watch",
-        "watch:styles": "gulp watch"
+        "watch": "tsc -p tsconfig.json --watch"
     },
     "repository": {
         "type": "git",
@@ -46,19 +36,11 @@
     },
     "homepage": "https://github.com/gebruederheitz/energize#readme",
     "devDependencies": {
-        "autoprefixer": "^10.6.2",
-        "cssnano": "^9.9.0",
-        "gulp": "^5.0.1",
-        "gulp-dart-sass": "^1.1.0",
-        "gulp-postcss": "^10.0.0",
         "prettier": "^3.9.10",
         "release-it": "^21.1.2",
         "typescript": "^7.0.2"
     },
     "publishConfig": {
         "access": "public"
-    },
-    "dependencies": {
-        "nanostores": "^1.5.5"
     }
 }
