@@ -38,11 +38,12 @@
         "postbuild": "cp src/store.d.ts dist/types/",
         "build:styles": "gulp",
         "lint": "npm run prettier:check && npm run tscheck",
-        "prettier:check": "prettier -c --config .prettierrc src/",
-        "prettier:fix": "prettier -w --config .prettierrc src/",
+        "prettier:check": "prettier -c --config .prettierrc src/ test/ vitest.config.mts",
+        "prettier:fix": "prettier -w --config .prettierrc src/ test/ vitest.config.mts",
         "release": "release-it --only-version",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "tscheck": "tsc --noEmit -p ./tsconfig.json",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "tscheck": "tsc --noEmit -p ./tsconfig.json && tsc -p ./test/tsconfig.json",
         "prewatch": "rm -rf dist/",
         "watch": "rollup -c rollup.config.mjs --watch",
         "watch:styles": "gulp watch"
@@ -68,10 +69,12 @@
         "gulp": "^5.0.1",
         "gulp-dart-sass": "^1.1.0",
         "gulp-postcss": "^10.0.0",
+        "happy-dom": "^21.0.4",
         "prettier": "^3.9.10",
         "release-it": "^21.1.2",
         "rollup": "^4.67.4",
-        "typescript": "^7.0.2"
+        "typescript": "^7.0.2",
+        "vitest": "^5.1.0"
     },
     "publishConfig": {
         "access": "public"
