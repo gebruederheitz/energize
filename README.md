@@ -155,3 +155,63 @@ setTimeout(() => {
 }, 2000)
 
 ```
+
+
+## Transitions
+
+`EnhancedTransitioningElement` is an `EnhancedElement` whose `show()` and
+`hide()` run your CSS transitions or animations. energize ships no CSS for it:
+it only moves the element through four state classes, and you style them.
+
+| Call     | While transitioning | When finished |
+|----------|---------------------|---------------|
+| `show()` | `show`              | `shown`       |
+| `hide()` | `hide`              | `hidden`      |
+
+- `aria-hidden` and `isVisible()` change immediately; `onShown()` and
+  `onHidden()` run when the transition has finished.
+- Calling `hide()` during a show transition (or the reverse) turns it around
+  cleanly; repeated calls in the same direction are ignored.
+- If no transition or animation applies, the change completes right away.
+- Only transitions and animations of the element itself count; those of child
+  elements are ignored. With several transitioned properties, the longest one
+  decides when the transition has finished.
+- Override `getClassNames()` to rename the classes, for example
+  `{ ...super.getClassNames(), show: 'entering' }`.
+
+By default, `show` and `hide` carry the styles the transition runs *to*:
+showing transitions from `hidden` to `show`, hiding from `shown` to `hide`. A
+fade, where the hidden element stays in the layout:
+
+```css
+.fade { transition: opacity 300ms ease, visibility 300ms; }
+.fade.hide,
+.fade.hidden { opacity: 0; visibility: hidden; }
+```
+
+Transitions can't start from `display: none`. If `hidden` removes the element
+from the layout, set `delayedShowTransition`: energize then removes `hidden`
+first and adds `shown` a moment later, so `show` holds the styles to start
+*from* and the transition runs from `show` to `shown`.
+
+```css
+.slide { overflow: hidden; transition: max-height 200ms ease; }
+.slide.show,
+.slide.hide { max-height: 0; }
+.slide.shown { max-height: 20rem; }
+.slide.hidden { display: none; }
+```
+
+```ts
+import { EnhancedTransitioningElement, energize } from '@gebruederheitz/energize';
+
+class Panel extends EnhancedTransitioningElement<HTMLDivElement> {
+    protected override readonly delayedShowTransition = true;
+}
+
+const panel = energize('.slide', Panel);
+panel?.show();
+```
+
+`delayedHideTransition` does the same in the other direction: it adds `hidden`
+right after `hide()` starts, so the transition runs towards the `hidden` styles.
