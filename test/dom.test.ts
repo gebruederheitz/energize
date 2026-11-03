@@ -71,7 +71,7 @@ describe('classes and attributes', () => {
         expect(enhanced.getElement().getAttribute('role')).toBe('tab');
     });
 
-    // Defect: the getAttribute getter returns the DOM method unbound, so calling it throws.
+    // Defect #36: the getAttribute getter returns the DOM method unbound, so calling it throws.
     it.fails('getAttribute() reads the attribute', () => {
         const enhanced = EnhancedElement.fromNewDiv().setAttribute(
             'role',
@@ -193,7 +193,7 @@ describe('parent', () => {
         expect(leaf.parent('section')).toBe(detached);
     });
 
-    // Defect: the loop only stops at document.body, so a detached tree runs into null.matches().
+    // Defect #37: the loop only stops at document.body, so a detached tree runs into null.matches().
     it.fails(
         'returns null for a detached element without a matching ancestor',
         () => {
