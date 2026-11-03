@@ -6,8 +6,8 @@ tsconfig.json
 .release-it.yaml
 .task/
 Taskfile.yaml
-Gulpfile.mjs
 CLAUDE.md
 CLAUDE.local.md
+/examples/
 /test/
 vitest.config.mts

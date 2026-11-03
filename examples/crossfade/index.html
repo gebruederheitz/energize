@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>energize: crossfade example</title>
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                max-width: 40rem;
+                margin: 2rem auto;
+                padding: 0 1rem;
+            }
+            nav {
+                display: flex;
+                gap: 0.5rem;
+                margin-block: 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+                border-radius: 0.5rem;
+                color: #fff;
+            }
+            .card.first {
+                background: #3b5b92;
+            }
+            .card.second {
+                background: #2f7d5b;
+                padding-block: 4rem;
+            }
+            .card.third {
+                background: #a4512f;
+            }
+        </style>
+        <style>
+            /*
+             * The crossfade. Items are positioned absolutely on top of each
+             * other, so the container gets its height from --height, which
+             * the script sets to the current item's height. Changes to it
+             * are animated, which moves the content below smoothly.
+             *
+             * Without a modifier class on the container the views fade;
+             * .zoom and .blinds pick the other variants.
+             */
+            .crossfade {
+                --crossfade-enter-speed: 0.5s;
+                --crossfade-exit-speed: 0.45s;
+                --crossfade-enter-animation: crossfade-fade;
+                --crossfade-exit-animation: crossfade-fade;
+                --crossfade-exit-direction: reverse;
+
+                position: relative;
+                overflow: hidden;
+                height: var(--height);
+                transition: height 200ms ease;
+            }
+
+            .crossfade > * {
+                position: absolute;
+                inset: 0 0 auto;
+                margin: 0;
+                transform-origin: center;
+            }
+
+            /* Classes set by EnhancedTransitioningElement. */
+            .crossfade > .hidden {
+                display: none;
+            }
+
+            .crossfade > .show {
+                animation: var(--crossfade-enter-animation)
+                    var(--crossfade-enter-speed) ease-in-out;
+                z-index: 1;
+            }
+
+            .crossfade > .hide {
+                animation: var(--crossfade-exit-animation)
+                    var(--crossfade-exit-speed) ease-in-out
+                    var(--crossfade-exit-direction) both;
+            }
+
+            .crossfade.zoom {
+                --crossfade-enter-animation: crossfade-zoom;
+                --crossfade-exit-animation: crossfade-zoom;
+            }
+
+            .crossfade.blinds {
+                --crossfade-enter-animation: crossfade-blinds-enter;
+                --crossfade-exit-animation: crossfade-blinds-exit;
+                --crossfade-exit-direction: normal;
+            }
+
+            @keyframes crossfade-fade {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes crossfade-zoom {
+                from {
+                    opacity: 0;
+                    transform: scale(0.6);
+                }
+                50% {
+                    opacity: 1;
+                }
+                to {
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes crossfade-blinds-enter {
+                from {
+                    transform: translateY(100%);
+                }
+                to {
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes crossfade-blinds-exit {
+                from {
+                    transform: translateY(0);
+                }
+                to {
+                    transform: translateY(-100%);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .crossfade {
+                    --crossfade-enter-speed: 1ms;
+                    --crossfade-exit-speed: 1ms;
+                    transition: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Crossfade</h1>
+
+        <label>
+            Variant
+            <select id="variant">
+                <option value="blinds" selected>blinds</option>
+                <option value="">fade</option>
+                <option value="zoom">zoom</option>
+            </select>
+        </label>
+
+        <nav>
+            <button type="button" data-select="first">First</button>
+            <button type="button" data-select="second">Second</button>
+            <button type="button" data-select="third">Third</button>
+        </nav>
+
+        <!-- Every item but the initial one starts with the "hidden" class. -->
+        <div class="crossfade" id="views">
+            <div class="card first" data-crossfade-item="first">
+                First view
+            </div>
+            <div class="card second hidden" data-crossfade-item="second">
+                Second view, taller
+            </div>
+            <div class="card third hidden" data-crossfade-item="third">
+                Third view
+            </div>
+        </div>
+
+        <p>This paragraph follows the height of the current view.</p>
+
+        <script type="module">
+            import {
+                energize,
+                energizeAll,
+                EnhancedElement,
+                EnhancedTransitioningElement,
+            } from '../../dist/index.js';
+
+            /**
+             * A container that shows one of its children at a time. Children
+             * name themselves with data-crossfade-item; the connected store
+             * holds the name of the child to show.
+             */
+            class Crossfade extends EnhancedElement {
+                items = this.findAndWrapAllInto(
+                    ':scope > *',
+                    EnhancedTransitioningElement
+                );
+
+                // Keeps --height at the current item's height, including
+                // when it reflows, e.g. on a narrower viewport.
+                resizeObserver = new ResizeObserver(([entry]) => {
+                    const height = entry.borderBoxSize[0].blockSize;
+                    this.element.style.setProperty('--height', `${height}px`);
+                });
+
+                onStateUpdate(name) {
+                    this.resizeObserver.disconnect();
+
+                    for (const item of this.items) {
+                        if (item.dataset.crossfadeItem === name) {
+                            item.show();
+                            this.resizeObserver.observe(item.getElement());
+                        } else {
+                            item.hide();
+                        }
+                    }
+                }
+            }
+
+            /**
+             * All energize needs from a store is subscribe(callback),
+             * returning an unsubscribe function. Any store with that method
+             * works, such as nanostores or Svelte stores.
+             */
+            function createStore(value) {
+                const subscribers = new Set();
+
+                return {
+                    set(newValue) {
+                        value = newValue;
+                        subscribers.forEach((callback) => callback(value));
+                    },
+                    subscribe(callback) {
+                        subscribers.add(callback);
+                        callback(value);
+
+                        return () => subscribers.delete(callback);
+                    },
+                };
+            }
+
+            const store = createStore('first');
+            const views = energize('#views', Crossfade, store);
+
+            for (const button of energizeAll('[data-select]')) {
+                button.on('click', () => store.set(button.dataset.select));
+            }
+
+            const variant = document.getElementById('variant');
+            const applyVariant = () => {
+                views.removeClass('zoom', 'blinds');
+                if (variant.value) views.addClass(variant.value);
+            };
+            // Browsers may restore the previous selection on reload.
+            applyVariant();
+            variant.addEventListener('change', applyVariant);
+        </script>
+    </body>
+</html>
