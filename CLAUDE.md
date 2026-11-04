@@ -32,7 +32,7 @@ The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The T
 - Because of `module: nodenext`, relative imports in `src/` must use the `.js` extension of the emitted file (`'./store.js'`, not `'./store'`).
 - `src/store.ts` holds only types (the `StoreType` contract); import it with `import type`.
 - The public surface is the single `.` entry of the `exports` map in `package.json`, with a `types` and a `default` condition. The package has no runtime dependencies and declares `sideEffects: false`; keep module evaluation free of side effects.
-- `dist/` is gitignored. `.npmignore` replaces `.gitignore` for npm, so any new repo-only file must be added there or it ends up in the published package.
+- `dist/` is gitignored. The `files` allowlist in `package.json` decides what is published: `dist/` and `UPGRADING.md`, plus `package.json`, `README.md` and `LICENSE`, which npm always includes. Add a file there only if consumers need it; anything else in the checkout (IDE settings, tool output) stays out.
 
 ## Architecture
 

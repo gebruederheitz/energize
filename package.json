@@ -10,6 +10,10 @@
         }
     },
     "sideEffects": false,
+    "files": [
+        "dist",
+        "UPGRADING.md"
+    ],
     "scripts": {
         "prebuild": "rm -rf dist/",
         "build": "tsc -p tsconfig.json",
