@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { EnhancedElement } from '../src/index';
+import { Energizable, spark } from '../src/index';
 import { Counter, Widget } from './support/components';
 import { createTestStore } from './support/store';
 
-function wrap(id: string): EnhancedElement<HTMLElement> {
-    return EnhancedElement.fromElement(document.getElementById(id));
+function wrap(id: string): Energizable<HTMLElement> {
+    return new Energizable(document.getElementById(id));
 }
 
 describe('content', () => {
     it('content() sets the text and getContent() reads it', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
 
         expect(enhanced.content('Hello')).toBe(enhanced);
         expect(enhanced.getContent()).toBe('Hello');
     });
 
     it('content() sets text, not markup', () => {
-        const enhanced = EnhancedElement.fromNewDiv().content('<b>bold</b>');
+        const enhanced = spark('div').content('<b>bold</b>');
 
         expect(enhanced.getElement().children).toHaveLength(0);
         expect(enhanced.getContent()).toBe('<b>bold</b>');
@@ -33,7 +33,7 @@ describe('content', () => {
     });
 
     it('contentOrHide() sets the content when given text', () => {
-        const enhanced = EnhancedElement.fromNewDiv().contentOrHide('Hello');
+        const enhanced = spark('div').contentOrHide('Hello');
 
         expect(enhanced.getContent()).toBe('Hello');
         expect(enhanced.isVisible()).toBe(true);
@@ -42,7 +42,7 @@ describe('content', () => {
     it.each([[''], [null], [undefined]])(
         'contentOrHide(%j) hides the element and keeps its content',
         (text) => {
-            const enhanced = EnhancedElement.fromNewDiv().content('Hello');
+            const enhanced = spark('div').content('Hello');
 
             enhanced.contentOrHide(text);
 
@@ -54,7 +54,7 @@ describe('content', () => {
 
 describe('classes and attributes', () => {
     it('addClass() and removeClass() take several classes and chain', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
         const element = enhanced.getElement();
 
         expect(enhanced.addClass('a', 'b', 'c')).toBe(enhanced);
@@ -65,7 +65,7 @@ describe('classes and attributes', () => {
     });
 
     it('setAttribute() sets the attribute and chains', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
 
         expect(enhanced.setAttribute('role', 'tab')).toBe(enhanced);
         expect(enhanced.getElement().getAttribute('role')).toBe('tab');
@@ -73,10 +73,7 @@ describe('classes and attributes', () => {
 
     // Defect #36: the getAttribute getter returns the DOM method unbound, so calling it throws.
     it.fails('getAttribute() reads the attribute', () => {
-        const enhanced = EnhancedElement.fromNewDiv().setAttribute(
-            'role',
-            'tab'
-        );
+        const enhanced = spark('div').setAttribute('role', 'tab');
 
         expect(enhanced.getAttribute('role')).toBe('tab');
     });
@@ -95,7 +92,7 @@ describe('classes and attributes', () => {
 
 describe('data', () => {
     it('setData() stores a value that getData() returns, and chains', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
         const value = { nested: true };
 
         expect(enhanced.setData('key', value)).toBe(enhanced);
@@ -103,15 +100,15 @@ describe('data', () => {
     });
 
     it('keeps data on the instance, not in the DOM', () => {
-        const enhanced = EnhancedElement.fromNewDiv().setData('key', 'value');
-        const other = EnhancedElement.fromElement(enhanced.getElement());
+        const enhanced = spark('div').setData('key', 'value');
+        const other = new Energizable(enhanced.getElement());
 
         expect(enhanced.getElement().attributes).toHaveLength(0);
         expect(other.getData('key')).toBeUndefined();
     });
 
     it('getData() returns undefined for an unknown key', () => {
-        expect(EnhancedElement.fromNewDiv().getData('missing')).toBeUndefined();
+        expect(spark('div').getData('missing')).toBeUndefined();
     });
 });
 
@@ -124,14 +121,14 @@ describe('placement', () => {
 
     it('appendTo() appends to an element and chains', () => {
         const list = document.getElementById('list');
-        const item = EnhancedElement.fromElementType('li');
+        const item = spark('li');
 
         expect(item.appendTo(list)).toBe(item);
         expect(list.lastElementChild).toBe(item.getElement());
     });
 
-    it('appendTo() appends to an EnhancedElement', () => {
-        const item = EnhancedElement.fromElementType('li');
+    it('appendTo() appends to an Energizable', () => {
+        const item = spark('li');
 
         item.appendTo(wrap('list'));
 
@@ -141,7 +138,7 @@ describe('placement', () => {
     });
 
     it('insertAfter() inserts before the next sibling', () => {
-        const item = EnhancedElement.fromElementType('li');
+        const item = spark('li');
 
         expect(item.insertAfter(document.getElementById('one'))).toBe(item);
 
@@ -150,7 +147,7 @@ describe('placement', () => {
     });
 
     it('insertAfter() appends after the last child', () => {
-        const item = EnhancedElement.fromElementType('li');
+        const item = spark('li');
 
         item.insertAfter(wrap('two'));
 
@@ -186,9 +183,7 @@ describe('parent', () => {
     it('finds a matching ancestor of a detached element', () => {
         const detached = document.createElement('section');
         detached.innerHTML = '<p><span></span></p>';
-        const leaf = EnhancedElement.fromElement(
-            detached.querySelector('span')
-        );
+        const leaf = new Energizable(detached.querySelector('span'));
 
         expect(leaf.parent('section')).toBe(detached);
     });
@@ -199,9 +194,7 @@ describe('parent', () => {
         () => {
             const detached = document.createElement('section');
             detached.innerHTML = '<p><span></span></p>';
-            const leaf = EnhancedElement.fromElement(
-                detached.querySelector('span')
-            );
+            const leaf = new Energizable(detached.querySelector('span'));
 
             expect(leaf.parent('.missing')).toBeNull();
         }
@@ -306,7 +299,7 @@ describe('cloning', () => {
         const original = wrap('original');
         const clone = original.clone();
 
-        expect(clone).toBeInstanceOf(EnhancedElement);
+        expect(clone).toBeInstanceOf(Energizable);
         expect(clone.getElement()).not.toBe(original.getElement());
         expect(clone.getElement().parentNode).toBeNull();
         expect(clone.getElement().outerHTML).toBe(

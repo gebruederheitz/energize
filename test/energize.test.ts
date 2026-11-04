@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { EnhancedElement, energize, energizeAll } from '../src/index';
+import {
+    Energizable,
+    energize,
+    energizeAll,
+    type SomeEnergizable,
+} from '../src/index';
 import { Counter, Widget } from './support/components';
 import { createTestStore } from './support/store';
 
@@ -13,7 +18,7 @@ beforeEach(() => {
     `;
 });
 
-const ids = (elements: EnhancedElement<HTMLElement, any>[]) =>
+const ids = (elements: SomeEnergizable[]) =>
     elements.map((e) => e.getElement().id);
 
 describe('energize', () => {
@@ -44,7 +49,7 @@ describe('energize', () => {
             const root = document.getElementById('root');
             const enhanced = energize('.item', root);
 
-            expect(enhanced).toBeInstanceOf(EnhancedElement);
+            expect(enhanced).toBeInstanceOf(Energizable);
             expect(enhanced.getElement().id).toBe('second');
         });
 

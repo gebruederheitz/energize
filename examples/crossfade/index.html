@@ -62,7 +62,7 @@
                 transform-origin: center;
             }
 
-            /* Classes set by EnhancedTransitioningElement. */
+            /* Classes set by TransitioningEnergizable. */
             .crossfade > .hidden {
                 display: none;
             }
@@ -176,8 +176,8 @@
             import {
                 energize,
                 energizeAll,
-                EnhancedElement,
-                EnhancedTransitioningElement,
+                Energizable,
+                TransitioningEnergizable,
             } from '../../dist/index.js';
 
             /**
@@ -185,10 +185,10 @@
              * name themselves with data-crossfade-item; the connected store
              * holds the name of the child to show.
              */
-            class Crossfade extends EnhancedElement {
+            class Crossfade extends Energizable {
                 items = this.findAndWrapAllInto(
                     ':scope > *',
-                    EnhancedTransitioningElement
+                    TransitioningEnergizable
                 );
 
                 // Keeps --height at the current item's height, including

@@ -1,8 +1,8 @@
-import { EnhancedElement } from '../../src/index';
+import { Energizable } from '../../src/index';
 import type { TestStore } from './store';
 
 /** A subclass with an extra constructor argument. */
-export class Widget extends EnhancedElement<HTMLElement> {
+export class Widget extends Energizable<HTMLElement> {
     constructor(
         element: HTMLElement,
         public label: string = 'default'
@@ -12,10 +12,10 @@ export class Widget extends EnhancedElement<HTMLElement> {
 }
 
 /** A store-connected subclass that records the states it receives. */
-export class Counter extends EnhancedElement<
+export class Counter extends Energizable<
     HTMLElement,
-    TestStore<number>,
-    number
+    number,
+    TestStore<number>
 > {
     public states: number[] = [];
 

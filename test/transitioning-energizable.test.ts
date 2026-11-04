@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { EnhancedTransitioningElement } from '../src/index';
+import { TransitioningEnergizable } from '../src/index';
 
 /**
- * The timing properties EnhancedTransitioningElement reads from the computed
+ * The timing properties TransitioningEnergizable reads from the computed
  * style. happy-dom doesn't compute them from stylesheets, so each test sets
  * them per element.
  */
@@ -35,7 +35,7 @@ function setTiming(element: Element, timing: Partial<Timing>): void {
 
 const fade = { transitionProperty: 'opacity', transitionDuration: '0.3s' };
 
-class Tracked extends EnhancedTransitioningElement<HTMLElement> {
+class Tracked extends TransitioningEnergizable<HTMLElement> {
     public calls: string[] = [];
 
     protected onShown(): void {
@@ -55,7 +55,7 @@ class DelayedHide extends Tracked {
     protected override readonly delayedHideTransition = true;
 }
 
-class CustomClasses extends EnhancedTransitioningElement<HTMLElement> {
+class CustomClasses extends TransitioningEnergizable<HTMLElement> {
     protected getClassNames(): Record<string, string> {
         return {
             hidden: 'is-hidden',
@@ -108,7 +108,7 @@ afterEach(() => {
     vi.useRealTimers();
 });
 
-describe('EnhancedTransitioningElement', () => {
+describe('TransitioningEnergizable', () => {
     describe('constructor', () => {
         it('adds the shown class to a visible element', () => {
             const element = div();

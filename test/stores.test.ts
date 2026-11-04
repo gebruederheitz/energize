@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { EnhancedElement, StoreType } from '../src/index';
-import { createTestStore, TestStore } from './support/store';
+import { Energizable, StoreType } from '../src/index';
+import { createTestStore } from './support/store';
 
-/** Records the order of the store-related hooks. */
-class Recorder extends EnhancedElement<HTMLElement, TestStore<number>, number> {
+/** Records the order of the store-related hooks; reads any store of numbers. */
+class Recorder extends Energizable<HTMLElement, number> {
     public calls: string[] = [];
     public storeInAfterConnect: unknown;
 
@@ -56,7 +56,9 @@ describe('stores', () => {
 
     it('dispatches a state-update event by default', () => {
         const store = createTestStore<string>();
-        const enhanced = EnhancedElement.fromNewDiv().connect(store);
+        const enhanced = new Energizable<HTMLDivElement, string>(
+            document.createElement('div')
+        ).connect(store);
         const listener = vi.fn();
         enhanced.on('state-update', listener);
 

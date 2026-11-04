@@ -1,8 +1,9 @@
 import type { StoreType } from './store.js';
-import { EnhancedElement } from './enhanced-element.js';
+import type { DefaultStore } from './energizable-types.js';
+import { Energizable } from './energizable.js';
 
 /**
- * An EnhancedElement that runs CSS transitions or animations when it is shown
+ * An Energizable that runs CSS transitions or animations when it is shown
  * or hidden. Instead of toggling ".hidden" directly, it moves through four
  * state classes (names from getClassNames()):
  *
@@ -13,12 +14,11 @@ import { EnhancedElement } from './enhanced-element.js';
  * cleanly. If no transition or animation applies, the state change completes
  * immediately.
  */
-export class EnhancedTransitioningElement<
-    ET extends HTMLElement,
-    S extends StoreType<STATE> | void = void,
-    STATE extends any = any,
-    InitOptionsArg extends unknown = undefined,
-> extends EnhancedElement<ET, S, STATE, InitOptionsArg> {
+export class TransitioningEnergizable<
+    ET extends HTMLElement = HTMLElement,
+    STATE = never,
+    STORE extends StoreType<STATE> = DefaultStore<STATE>,
+> extends Energizable<ET, STATE, STORE> {
     /**
      * Add "shown" one task after removing "hidden" instead of when the
      * transition ends. Use this when "hidden" sets `display: none`, which
