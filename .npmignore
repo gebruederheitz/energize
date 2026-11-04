@@ -10,4 +10,5 @@ CLAUDE.md
 CLAUDE.local.md
 /examples/
 /test/
+/.github/
 vitest.config.mts

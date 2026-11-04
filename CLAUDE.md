@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The Taskfile wraps the npm scripts with `asdf exec` and reinstalls dependencies when `package.json`/`package-lock.json` change:
+The Node version is pinned in `.tool-versions` (asdf); it is the only pin, and CI reads it too. The Taskfile wraps the npm scripts with `asdf exec` and reinstalls dependencies when `package.json`/`package-lock.json` change:
 
 - `task dev`: rebuild on changes (`npm run watch`, which is `tsc --watch`)
 - `task build`: `npm run build`
@@ -16,6 +16,8 @@ The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The T
 - `task test`: `npm test`, which runs the vitest suite once; `npm run test:watch` keeps it running
 - `task test -- test/stores.test.ts` runs a single file, `task test -- -t 'destroy'` the tests whose name matches; anything after `--` goes to vitest
 - `npm run prettier:fix`: format `src/`, `test/` and `vitest.config.mts`
+
+CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run lint`, `npm test` and `npm run build` on every pull request and every push to `main`. Its actions are pinned by commit SHA with the release tag in a comment; update both together.
 
 ## Tests
 
