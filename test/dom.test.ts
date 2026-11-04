@@ -108,11 +108,16 @@ describe('classes and attributes', () => {
         expect(enhanced.getElement().getAttribute('role')).toBe('tab');
     });
 
-    // Defect #36: the getAttribute getter returns the DOM method unbound, so calling it throws.
-    it.fails('getAttribute() reads the attribute', () => {
+    it('getAttribute() reads the attribute of the element', () => {
         document.body.innerHTML = '<div id="d" role="tab"></div>';
 
         expect(wrap('d').getAttribute('role')).toBe('tab');
+    });
+
+    it('getAttribute() returns null for a missing attribute', () => {
+        document.body.innerHTML = '<div id="d"></div>';
+
+        expect(wrap('d').getAttribute('role')).toBeNull();
     });
 
     it('dataset is the element dataset', () => {

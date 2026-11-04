@@ -449,8 +449,12 @@ export class Energizable<
         );
     }
 
-    public get getAttribute() {
-        return this.element.getAttribute;
+    /**
+     * Returns the value of the element's attribute _name_, or null if the
+     * element doesn't have it.
+     */
+    public getAttribute(name: string): string | null {
+        return this.element.getAttribute(name);
     }
 
     public setAttribute(attributeName: string, attributeValue: string): this {
