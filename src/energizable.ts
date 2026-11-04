@@ -335,6 +335,8 @@ export class Energizable<
      * Without parameters, returns the component's parent element in the DOM.
      * Passing the _selector_ will traverse the DOM tree upwards and return the
      * first element matching it; `null` if no matching ancestor is found.
+     * The search stops below `document.body`, or at the root of a detached
+     * tree.
      *
      * @example energize('.child')?.parent('.ancestor');
      *          body
@@ -346,18 +348,17 @@ export class Energizable<
         selector: string = null
     ): T {
         if (selector) {
-            let parent = null;
-            let nextParent = this.element.parentElement;
+            let ancestor = this.element.parentElement;
 
-            while (parent === null && nextParent !== document.body) {
-                if (nextParent.matches(selector)) {
-                    parent = nextParent;
+            while (ancestor !== null && ancestor !== document.body) {
+                if (ancestor.matches(selector)) {
+                    return ancestor as T;
                 }
 
-                nextParent = nextParent.parentElement;
+                ancestor = ancestor.parentElement;
             }
 
-            return parent;
+            return null;
         }
 
         return this.element.parentElement as T;
