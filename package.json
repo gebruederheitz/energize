@@ -1,6 +1,6 @@
 {
     "name": "@gebruederheitz/energize",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "Reactive DOM operations with plain ES6+",
     "type": "module",
     "exports": {
