@@ -211,7 +211,7 @@ export class Energizable<
 
     /**
      * Destroys the element, removing it from the DOM and cleaning up any store
-     * subscriptions. Chainable.
+     * subscriptions.
      */
     public destroy(): void {
         const classes = this.getClassNames();
@@ -290,7 +290,7 @@ export class Energizable<
     }
 
     /**
-     * Without parameters, returns the components parent element in the DOM.
+     * Without parameters, returns the component's parent element in the DOM.
      * Passing the _selector_ will traverse the DOM tree upwards and return the
      * first element matching it; `null` if no matching ancestor is found.
      *
@@ -349,8 +349,8 @@ export class Energizable<
 
     /**
      * Finds all elements within the component's DOM subtree matching _selector_
-     * and energizes that with a plain Energizable. Returns null if no matching
-     * element is found.
+     * and energizes each with a plain Energizable. Returns an empty array if no
+     * matching element is found.
      * Optionally connects _store_ automatically.
      */
     public findAndWrapAll<
@@ -390,7 +390,7 @@ export class Energizable<
     /**
      * Finds all elements within the component's DOM subtree matching
      * _selector_ and energizes each with the given Energizable _Component_.
-     * Returns null if no matching element is found.
+     * Returns an empty array if no matching element is found.
      * Optionally connects _store_ automatically.
      */
     public findAndWrapAllInto<
@@ -423,7 +423,7 @@ export class Energizable<
 
     /**
      * Allows you to retrieve arbitrary data stored on the Energizable instance
-     * through @see Energizable.setData.
+     * through {@link Energizable.setData}.
      */
     public getData<T>(key: string): T {
         return this.data.get(key) as T;
@@ -431,7 +431,7 @@ export class Energizable<
 
     /**
      * Allows you to store arbitrary data on this Energizable instance, which
-     * can be retrieved with @see Energizable.getData(). Chainable.
+     * can be retrieved with {@link Energizable.getData}. Chainable.
      */
     public setData(key: string, value: unknown): this {
         this.data.set(key, value);
@@ -441,7 +441,7 @@ export class Energizable<
 
     /**
      * Internal method – the object returned defines the class names used for
-     * reflecting states. You can override this in you extending component
+     * reflecting states. You can override this in your extending component
      * to change the default "hidden" for a non-visible element.
      */
     protected getClassNames(): Record<string, string> {
