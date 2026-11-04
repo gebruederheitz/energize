@@ -225,17 +225,18 @@ describe('parent', () => {
         expect(leaf.parent('section')).toBe(detached);
     });
 
-    // Defect #37: the loop only stops at document.body, so a detached tree runs into null.matches().
-    it.fails(
-        'returns null for a detached element without a matching ancestor',
-        () => {
-            const detached = document.createElement('section');
-            detached.innerHTML = '<p><span></span></p>';
-            const leaf = new Energizable(detached.querySelector('span'));
+    it('returns null for a detached element without a matching ancestor', () => {
+        const detached = document.createElement('section');
+        detached.innerHTML = '<p><span></span></p>';
+        const leaf = new Energizable(detached.querySelector('span'));
 
-            expect(leaf.parent('.missing')).toBeNull();
-        }
-    );
+        expect(leaf.parent('.missing')).toBeNull();
+    });
+
+    it('never matches body or html', () => {
+        expect(wrap('leaf').parent('body')).toBeNull();
+        expect(wrap('leaf').parent('html')).toBeNull();
+    });
 });
 
 describe('finding descendants', () => {
