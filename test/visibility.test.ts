@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { EnhancedElement } from '../src/index';
+import { Energizable } from '../src/index';
 
-class Tracked extends EnhancedElement<HTMLElement> {
+class Tracked extends Energizable<HTMLElement> {
     public shownCalls = 0;
     public hiddenCalls = 0;
 
@@ -14,7 +14,7 @@ class Tracked extends EnhancedElement<HTMLElement> {
     }
 }
 
-class CustomHiddenClass extends EnhancedElement<HTMLElement> {
+class CustomHiddenClass extends Energizable<HTMLElement> {
     protected getClassNames(): Record<string, string> {
         return { hidden: 'is-hidden' };
     }
@@ -30,7 +30,7 @@ describe('visibility', () => {
     describe('constructor sync', () => {
         it('treats an element without hidden class or aria-hidden as visible', () => {
             const element = div();
-            const enhanced = new EnhancedElement(element);
+            const enhanced = new Energizable(element);
 
             expect(enhanced.isVisible()).toBe(true);
             expect(element.classList.contains('hidden')).toBe(false);
@@ -39,7 +39,7 @@ describe('visibility', () => {
 
         it('sets aria-hidden when the element has the hidden class', () => {
             const element = div('class="hidden"');
-            const enhanced = new EnhancedElement(element);
+            const enhanced = new Energizable(element);
 
             expect(enhanced.isVisible()).toBe(false);
             expect(element.getAttribute('aria-hidden')).toBe('true');
@@ -47,7 +47,7 @@ describe('visibility', () => {
 
         it('adds the hidden class when the element has aria-hidden="true"', () => {
             const element = div('aria-hidden="true"');
-            const enhanced = new EnhancedElement(element);
+            const enhanced = new Energizable(element);
 
             expect(enhanced.isVisible()).toBe(false);
             expect(element.classList.contains('hidden')).toBe(true);
@@ -55,7 +55,7 @@ describe('visibility', () => {
 
         it('treats aria-hidden="false" as visible', () => {
             const element = div('aria-hidden="false"');
-            const enhanced = new EnhancedElement(element);
+            const enhanced = new Energizable(element);
 
             expect(enhanced.isVisible()).toBe(true);
             expect(element.classList.contains('hidden')).toBe(false);
@@ -106,9 +106,11 @@ describe('visibility', () => {
 
     describe('getClassNames override', () => {
         it('is used by the constructor sync', () => {
-            const enhanced = new CustomHiddenClass(div('class="is-hidden"'));
+            const element = div('class="is-hidden"');
+            const enhanced = new CustomHiddenClass(element);
 
             expect(enhanced.isVisible()).toBe(false);
+            expect(element.getAttribute('aria-hidden')).toBe('true');
         });
 
         it('is used by show and hide instead of the default class', () => {

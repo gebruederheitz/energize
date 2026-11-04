@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { EnhancedElement } from '../src/index';
+import { Energizable, spark } from '../src/index';
 
-class Emitter extends EnhancedElement<HTMLElement> {
+class Emitter extends Energizable<HTMLElement> {
     public fire(eventName: string, data: unknown): void {
         this.emit(eventName, data);
     }
@@ -9,7 +9,7 @@ class Emitter extends EnhancedElement<HTMLElement> {
 
 describe('events', () => {
     it('on() adds a listener to the element', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
         const listener = vi.fn();
 
         enhanced.on('click', listener);
@@ -19,7 +19,7 @@ describe('events', () => {
     });
 
     it('on() returns a function that removes the listener again', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
         const listener = vi.fn();
 
         const off = enhanced.on('click', listener);
@@ -30,7 +30,7 @@ describe('events', () => {
     });
 
     it('on() passes the options to both adding and removing the listener', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
         const listener = vi.fn();
 
         // A capturing listener is only removed when `capture` matches.
@@ -42,7 +42,7 @@ describe('events', () => {
     });
 
     it('on() honours listener options such as once', () => {
-        const enhanced = EnhancedElement.fromNewDiv();
+        const enhanced = spark('div');
         const listener = vi.fn();
 
         enhanced.on('click', listener, { once: true });
@@ -56,7 +56,7 @@ describe('events', () => {
         const enhanced = new Emitter(document.createElement('div'));
         const listener = vi.fn();
 
-        enhanced.on('ping', listener);
+        enhanced.getElement().addEventListener('ping', listener);
         enhanced.fire('ping', { answer: 42 });
 
         expect(listener).toHaveBeenCalledTimes(1);

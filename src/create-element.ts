@@ -1,19 +1,28 @@
-export function createElement<T extends HTMLElement>({
-    type = 'DIV',
-    classNames = [],
-    attributes = null,
-    parent = null,
-    content = null,
-    children = [],
-}: {
-    type?: string;
+/**
+ * Describes an element for createElement() and spark(). The element type
+ * follows from `type` (default: div).
+ */
+export interface ElementDefinition<
+    K extends keyof HTMLElementTagNameMap = 'div',
+> {
+    type?: K;
     classNames?: string[];
     attributes?: Record<string, string>;
     parent?: HTMLElement;
     content?: string;
     children?: HTMLElement[];
-} = {}): T {
-    const e = <T>document.createElement(type);
+}
+
+export function createElement<K extends keyof HTMLElementTagNameMap = 'div'>({
+    type,
+    classNames = [],
+    attributes = null,
+    parent = null,
+    content = null,
+    children = [],
+}: ElementDefinition<K> = {}): HTMLElementTagNameMap[K] {
+    // Without a type, K is 'div'.
+    const e = document.createElement(type ?? 'div') as HTMLElementTagNameMap[K];
     if (classNames.length) {
         e.classList.add(...classNames);
     }

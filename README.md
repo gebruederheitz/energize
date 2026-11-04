@@ -19,8 +19,8 @@ store with a `subscribe(callback)` method that returns an unsubscribe function
 npm i @gebruederheitz/energize
 ```
 
+Upgrading from 1.x? See [UPGRADING.md](UPGRADING.md).
 
-## Basic Usage
 
 ```html
 <!-- Pre-existing HTML and CSS -->
@@ -30,136 +30,158 @@ npm i @gebruederheitz/energize
 ```
 
 ```ts
-import { EnhancedElement, energize, energizeAll } from '@gebruederheitz/energize';
+import { Energizable, energize, energizeAll } from '@gebruederheitz/energize';
 import { atom } from 'nanostores';
 
-type State = string;
-const store = atom<State>('Hello!');
+const store = atom('Hello!');
 
-class MyComponent extends EnhancedElement<HTMLDivElement, State> {
-    // "lifecycle" hooks:
+// Wraps a div, receives string states and writes to its store, so it names
+// the store type too
+class MyComponent extends Energizable<HTMLDivElement, string, typeof store> {
+    // Lifecycle hooks; all optional
+    protected onInit(): void {
+        // onInit() runs inside the base constructor, before this class's
+        // fields are initialised: use methods here, not arrow-function fields
+        this.on('click', (e) => this.onClick(e));
+    }
     protected onAfterConnect(): void {}
     protected onShown(): void {}
     protected onHidden(): void {}
     protected onDestroyed(): void {}
-    protected onInit(): void {
-        this.on('click', this.onClick);
-    }
-    
-    // Your entrypoint for state management:
-    protected onStoreUpdate(newState): void {
-        if (newState) {
-            // Utility for manipulating innerText
-            this.content(newState);
-            // Utility for dispatching CustomEvent instances from the element
-            this.emit('state-change', {newState});
+
+    // Called on every store change (nanostores and Svelte stores also call it
+    // once on connect)
+    protected onStateUpdate(state: string): void {
+        if (state) {
+            this.content(state).show();
+            this.emit('state-change', { state });
         } else {
-            // Utility to add a configurable set of classes (default: "hidden")
-            // to the element and mark it as hidden using a class property; as
-            // well as setting aria-hidden to allow for advanced transition
-            // handling and non-standard visual hiding techniques.
             this.hide();
         }
     }
-    
-    private onClick = (e: MouseEvent) => {
-        this.store.set('Ouch!');
-    };
 
-    public destroy(): void;
-
-    public clone(): EnhancedElement<ET, S, STATE>;
-    public cloneInto<
-        C extends EEConstructor<any, any>,
-        T extends EnhancedElement<any, any> = InstanceType<C>,
-    >(constructor: C, ...additionalArgs: EEConstructorArgs<C>): T;
-    
-    // Utilities as proxies to standard DOM operations:
-    public on(
-        eventName: string,
-        callback: EventListenerOrEventListenerObject,
-        options?: boolean | (EventListenerOptions & AddEventListenerOptions)
-    ): () => void;
-    protected emit(eventName: string, data: unknown);
-    public show(): this;
-    public hide(): this;
-    public content(innerText: string): this;
-    public contentOrHide(innerText: string | null = null): this;
-    public getContent(): string;
-    public addClass(...classes: string[]): this;
-    public removeClass(...classes: string[]): this;
-    public appendTo(parent: Element | EnhancedElement<any>): this;
-    public insertAfter(element: Element | EnhancedElement<any>): this;
-    // Will unsubscribe from any stores if required:
-    public destroy(): void;
-    public find<T extends HTMLElement>(selector: string): T | null;
-    public findAll<T extends HTMLElement>(
-        selector: string,
-        asArray: boolean = false
-    ): T[] | NodeListOf<T>;
-    public parent<T extends HTMLElement = HTMLElement>(
-        selector: string = null
-    ): T;
-    public get getAttribute();
-    public setAttribute(attributeName: string, attributeValue: string): this;
-    public get dataset();
-    
-    // Internal properties & their management
-    public isVisible(): boolean;
-    public getData<T extends unknown>(key: string): T;
-    public setData(key: string, value: unknown): this;
-    protected getClassNames(): Record<string, string> {
-        return {
-            hidden: 'hidden',
-        };
+    private onClick(e: Event): void {
+        this.store?.set('Ouch!');
     }
-    public getElement(): ET;
-    // Manually connect a store
-    public connect<Sx extends StoreType<any>>(store: Sx): this;
-    
-    // Creating EnhancedElement children:
-    public findAndWrap<
-        T extends HTMLElement,
-        Sx extends StoreType<STx> | void = void,
-        STx extends any = any,
-    >(selector: string): EnhancedElement<T, Sx, STx> | null;
-    public findAndWrapAll<
-        T extends HTMLElement,
-        Sx extends StoreType<any> | void = void,
-        STx extends any = any,
-    >(selector: string, store: Sx = null): EnhancedElement<T, Sx, STx>[];
-    public findAndWrapInto<
-        C extends EEConstructor<any, any>,
-        T extends EnhancedElement<any, any> = InstanceType<C>,
-    >(
-        selector: string,
-        into: C,
-        store: EEStoreType<T> = null,
-        ...additionalArgs: EEConstructorArgs<C>
-    ): T | null;
-    public findAndWrapAllInto<
-        C extends EEConstructor<any, any>,
-        T extends EnhancedElement<any, any> = InstanceType<C>,
-    >(
-        selector: string,
-        into: C,
-        store: EEStoreType<T> = null,
-        ...additionalArgs: EEConstructorArgs<C>
-    ): T[];
 }
 
 energize('[data-component="my-component"]', MyComponent, store);
 energizeAll('[data-component="my-other-component"]', MyComponent, store);
-setTimeout(() => {
-    store.set('Goodbye')
-}, 2000)
 
+setTimeout(() => {
+    store.set('Goodbye');
+}, 2000);
 ```
+
+Without an `onStateUpdate()` override, a connected element dispatches a
+`state-update` CustomEvent with the new state as `detail` instead.
+
+
+## Types
+
+`Energizable<ElementType, State, Store>` takes up to three type parameters:
+
+- `ElementType`: the wrapped element, such as `HTMLDivElement`.
+- `State`: what `onStateUpdate()` receives. Leave it out for an element
+  without state; such an element accepts no store.
+- `Store`: the store it connects to. It defaults to any store holding `State`,
+  so a component that only reads its state works with nanostores, Svelte stores
+  or your own. Name it only if the component uses more of its store, such as
+  `set()` above.
+
+The factories infer everything from the component you pass them: the element
+type, the store type and any further constructor arguments, which follow the
+store argument. Pass `null` as the store to give constructor arguments without
+one.
+
+```ts
+class Toggle extends Energizable<HTMLButtonElement, boolean> {
+    constructor(element: HTMLButtonElement, private label: string) {
+        super(element);
+    }
+}
+
+energize('.toggle', Toggle, isOpen, 'Menu');  // Toggle | null
+energize('.toggle', Toggle, isOpen);          // error: missing label
+energize('.toggle', Toggle, count, 'Menu');   // error: count holds numbers
+spark('div', Toggle, null, 'Menu');           // error: Toggle needs a button
+```
+
+
+## API
+
+`energize()` and `energizeAll()` wrap the first or all elements matching a
+selector in the document; `spark()` creates a new, detached element from a tag
+name or an element definition. With a component class, they instantiate it
+(passing any further arguments to its constructor) and connect the store if you
+pass one. Without one, they return plain `Energizable`s: `energize()` and
+`energizeAll()` then search within the element or document you pass (default:
+the document).
+
+```ts
+energize(selector, MyComponent, store?, ...constructorArgs): MyComponent | null;
+energize(selector, searchRoot?): Energizable | null;
+energizeAll(selector, MyComponent, store?, ...constructorArgs): MyComponent[];
+energizeAll(selector, searchRoot?): Energizable[];
+spark('button', MyComponent?, store?, ...constructorArgs): MyComponent;
+spark({ type, classNames, attributes, parent, content, children }, MyComponent?, store?, ...constructorArgs): MyComponent;
+```
+
+To wrap an element you already hold, call the constructor:
+`new MyComponent(element)`.
+
+`Energizable<ElementType, State, Store>`:
+
+```ts
+// Stores
+connect(store): this;                  // subscribes onStateUpdate(), then calls onAfterConnect()
+destroy(): void;                       // removes the element and unsubscribes
+
+// Visibility: toggles the "hidden" class and aria-hidden
+show(): this;
+hide(): this;
+isVisible(): boolean;
+protected getClassNames(): Record<string, string>; // override to rename "hidden"
+
+// Content, classes, attributes and data
+content(innerText: string): this;
+contentOrHide(innerText: string | null): this; // hides the element for empty content
+getContent(): string;
+addClass(...classes: string[]): this;
+removeClass(...classes: string[]): this;
+getAttribute(name: string): string | null;
+setAttribute(name: string, value: string): this;
+dataset: DOMStringMap;
+getData<T>(key: string): T;            // arbitrary values stored on the instance
+setData(key: string, value: unknown): this;
+getElement(): ElementType;
+
+// Events
+on(eventName, callback, options?): () => void; // returns a function that removes the listener
+protected emit(eventName: string, detail: unknown): void; // dispatches a CustomEvent
+
+// DOM
+appendTo(parent: Element | Energizable): this;
+insertAfter(element: Element | Energizable): this;
+parent(selector?: string): HTMLElement; // closest ancestor matching selector, or the direct parent
+find(selector): HTMLElement | null;
+findAll(selector, asArray?: boolean): NodeList | HTMLElement[];
+findAndWrap(selector, store?): Energizable | null;
+findAndWrapAll(selector, store?): Energizable[];
+findAndWrapInto(selector, MyComponent, store?, ...constructorArgs): MyComponent | null;
+findAndWrapAllInto(selector, MyComponent, store?, ...constructorArgs): MyComponent[];
+clone(): Energizable;
+cloneInto(MyComponent, ...constructorArgs): MyComponent;
+```
+
+The utility types `EnergizableConstructor`, `EnergizableElementType`,
+`EnergizableStoreType` and `EnergizableStoreArgument` are exported for writing
+your own factories.
 
 
 ## Transitions
 
-`EnhancedTransitioningElement` is an `EnhancedElement` whose `show()` and
+`TransitioningEnergizable` is an `Energizable` whose `show()` and
 `hide()` run your CSS transitions or animations. energize ships no CSS for it:
 it only moves the element through four state classes, and you style them.
 
@@ -203,9 +225,9 @@ first and adds `shown` a moment later, so `show` holds the styles to start
 ```
 
 ```ts
-import { EnhancedTransitioningElement, energize } from '@gebruederheitz/energize';
+import { TransitioningEnergizable, energize } from '@gebruederheitz/energize';
 
-class Panel extends EnhancedTransitioningElement<HTMLDivElement> {
+class Panel extends TransitioningEnergizable<HTMLDivElement> {
     protected override readonly delayedShowTransition = true;
 }
 

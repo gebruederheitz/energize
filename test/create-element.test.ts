@@ -5,6 +5,7 @@ describe('createElement', () => {
     it('creates a detached, empty div by default', () => {
         const element = createElement();
 
+        expect(element).toBeInstanceOf(HTMLDivElement);
         expect(element.tagName).toBe('DIV');
         expect(element.attributes).toHaveLength(0);
         expect(element.childNodes).toHaveLength(0);
@@ -12,7 +13,10 @@ describe('createElement', () => {
     });
 
     it('creates an element of the given type', () => {
-        expect(createElement({ type: 'section' }).tagName).toBe('SECTION');
+        const element = createElement({ type: 'button' });
+
+        expect(element).toBeInstanceOf(HTMLButtonElement);
+        expect(element.tagName).toBe('BUTTON');
     });
 
     it('adds the class names', () => {
@@ -38,11 +42,18 @@ describe('createElement', () => {
     });
 
     it('appends the children in order', () => {
-        const first = document.createElement('span');
-        const second = document.createElement('em');
-        const element = createElement({ children: [first, second] });
+        // Identical spans, so that only identity tells them apart: toEqual()
+        // compares DOM nodes with isEqualNode(). Five of them leave a random
+        // order a 1 in 120 chance of passing.
+        const children = Array.from({ length: 5 }, () =>
+            document.createElement('span')
+        );
+        const element = createElement({ children });
 
-        expect(Array.from(element.children)).toEqual([first, second]);
+        expect(element.children).toHaveLength(children.length);
+        children.forEach((child, index) => {
+            expect(element.children[index]).toBe(child);
+        });
     });
 
     it('appends the element to the parent', () => {

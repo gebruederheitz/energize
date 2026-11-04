@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { EnhancedElement } from '../src/index';
+import { Energizable } from '../src/index';
 
 describe('lifecycle', () => {
+    it('wraps the element it is given', () => {
+        const element = document.createElement('div');
+
+        expect(new Energizable(element).getElement()).toBe(element);
+    });
+
     it('calls onInit once during construction, after the visibility sync', () => {
         const visibleInInit: boolean[] = [];
 
-        class Probe extends EnhancedElement<HTMLElement> {
+        class Probe extends Energizable<HTMLElement> {
             protected onInit(): void {
                 visibleInInit.push(this.isVisible());
             }
@@ -24,7 +30,7 @@ describe('lifecycle', () => {
         // arrow-function fields cannot be registered in onInit.
         let handlerInInit: unknown = 'not called';
 
-        class Probe extends EnhancedElement<HTMLElement> {
+        class Probe extends Energizable<HTMLElement> {
             protected onInit(): void {
                 handlerInInit = this.onClick;
             }
@@ -42,7 +48,7 @@ describe('lifecycle', () => {
             document.body.innerHTML = '<div id="d"></div>';
             const element = document.getElementById('d');
 
-            EnhancedElement.fromElement(element).destroy();
+            new Energizable(element).destroy();
 
             expect(element.isConnected).toBe(false);
             expect(element.classList.contains('hidden')).toBe(true);
@@ -51,7 +57,7 @@ describe('lifecycle', () => {
         it('calls onDestroyed without a connected store', () => {
             let destroyedCalls = 0;
 
-            class Probe extends EnhancedElement<HTMLElement> {
+            class Probe extends Energizable<HTMLElement> {
                 protected onDestroyed(): void {
                     destroyedCalls++;
                 }
