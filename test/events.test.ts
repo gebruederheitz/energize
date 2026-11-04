@@ -56,7 +56,7 @@ describe('events', () => {
         const enhanced = new Emitter(document.createElement('div'));
         const listener = vi.fn();
 
-        enhanced.on('ping', listener);
+        enhanced.getElement().addEventListener('ping', listener);
         enhanced.fire('ping', { answer: 42 });
 
         expect(listener).toHaveBeenCalledTimes(1);

@@ -8,46 +8,51 @@ function wrap(id: string): Energizable<HTMLElement> {
 }
 
 describe('content', () => {
-    it('content() sets the text and getContent() reads it', () => {
+    it('content() sets the text of the element and chains', () => {
         const enhanced = spark('div');
 
         expect(enhanced.content('Hello')).toBe(enhanced);
-        expect(enhanced.getContent()).toBe('Hello');
+        expect(enhanced.getElement().innerText).toBe('Hello');
     });
 
     it('content() sets text, not markup', () => {
-        const enhanced = spark('div').content('<b>bold</b>');
+        const element = spark('div').content('<b>bold</b>').getElement();
 
-        expect(enhanced.getElement().children).toHaveLength(0);
-        expect(enhanced.getContent()).toBe('<b>bold</b>');
+        expect(element.children).toHaveLength(0);
+        expect(element.innerText).toBe('<b>bold</b>');
     });
 
     it('content() leaves the element untouched when the text is unchanged', () => {
         document.body.innerHTML = '<p id="p"><b>same</b></p>';
-        const enhanced = wrap('p');
-        const bold = enhanced.find('b');
+        const bold = document.querySelector('b');
 
-        enhanced.content('same');
+        wrap('p').content('same');
 
-        expect(enhanced.find('b')).toBe(bold);
+        expect(bold.parentElement).toBe(document.getElementById('p'));
+    });
+
+    it('getContent() reads the text of the element', () => {
+        document.body.innerHTML = '<p id="p">Hello</p>';
+
+        expect(wrap('p').getContent()).toBe('Hello');
     });
 
     it('contentOrHide() sets the content when given text', () => {
-        const enhanced = spark('div').contentOrHide('Hello');
+        const element = spark('div').contentOrHide('Hello').getElement();
 
-        expect(enhanced.getContent()).toBe('Hello');
-        expect(enhanced.isVisible()).toBe(true);
+        expect(element.innerText).toBe('Hello');
+        expect(element.classList.contains('hidden')).toBe(false);
     });
 
     it.each([[''], [null], [undefined]])(
         'contentOrHide(%j) hides the element and keeps its content',
         (text) => {
-            const enhanced = spark('div').content('Hello');
+            const element = spark({ content: 'Hello' })
+                .contentOrHide(text)
+                .getElement();
 
-            enhanced.contentOrHide(text);
-
-            expect(enhanced.isVisible()).toBe(false);
-            expect(enhanced.getContent()).toBe('Hello');
+            expect(element.classList.contains('hidden')).toBe(true);
+            expect(element.innerText).toBe('Hello');
         }
     );
 });
@@ -73,9 +78,9 @@ describe('classes and attributes', () => {
 
     // Defect #36: the getAttribute getter returns the DOM method unbound, so calling it throws.
     it.fails('getAttribute() reads the attribute', () => {
-        const enhanced = spark('div').setAttribute('role', 'tab');
+        document.body.innerHTML = '<div id="d" role="tab"></div>';
 
-        expect(enhanced.getAttribute('role')).toBe('tab');
+        expect(wrap('d').getAttribute('role')).toBe('tab');
     });
 
     it('dataset is the element dataset', () => {
@@ -318,6 +323,8 @@ describe('cloning', () => {
         expect(widget).toBeInstanceOf(Widget);
         expect(widget.label).toBe('custom');
         expect(widget.getElement()).not.toBe(original.getElement());
-        expect(widget.find('span').textContent).toBe('child');
+        expect(widget.getElement().querySelector('span').textContent).toBe(
+            'child'
+        );
     });
 });

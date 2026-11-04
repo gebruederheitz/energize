@@ -44,7 +44,7 @@ describe('stores', () => {
         const store = createTestStore<number>();
         const recorder = new Recorder(document.createElement('div'));
         const listener = vi.fn();
-        recorder.on('state-update', listener);
+        recorder.getElement().addEventListener('state-update', listener);
 
         recorder.connect(store);
         store.set(1);
@@ -60,7 +60,7 @@ describe('stores', () => {
             document.createElement('div')
         ).connect(store);
         const listener = vi.fn();
-        enhanced.on('state-update', listener);
+        enhanced.getElement().addEventListener('state-update', listener);
 
         store.set('next');
 

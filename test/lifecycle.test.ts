@@ -2,6 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { Energizable } from '../src/index';
 
 describe('lifecycle', () => {
+    it('wraps the element it is given', () => {
+        const element = document.createElement('div');
+
+        expect(new Energizable(element).getElement()).toBe(element);
+    });
+
     it('calls onInit once during construction, after the visibility sync', () => {
         const visibleInInit: boolean[] = [];
 

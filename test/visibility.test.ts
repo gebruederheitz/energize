@@ -106,9 +106,11 @@ describe('visibility', () => {
 
     describe('getClassNames override', () => {
         it('is used by the constructor sync', () => {
-            const enhanced = new CustomHiddenClass(div('class="is-hidden"'));
+            const element = div('class="is-hidden"');
+            const enhanced = new CustomHiddenClass(element);
 
             expect(enhanced.isVisible()).toBe(false);
+            expect(element.getAttribute('aria-hidden')).toBe('true');
         });
 
         it('is used by show and hide instead of the default class', () => {

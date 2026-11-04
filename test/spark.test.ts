@@ -56,13 +56,10 @@ describe('spark', () => {
         });
 
         it('works without a store', () => {
-            const store = createTestStore<number>();
             const counter = spark('div', Counter);
 
-            store.set(1);
-
-            expect(store.subscriberCount).toBe(0);
-            expect(counter.states).toEqual([]);
+            expect(counter).toBeInstanceOf(Counter);
+            expect(counter.getElement().tagName).toBe('DIV');
         });
     });
 });
