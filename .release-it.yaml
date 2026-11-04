@@ -14,7 +14,6 @@ hooks:
   before:init:
     - asdf exec npm run lint
     - asdf exec npm run build
-    - asdf exec npm run build:styles
   after:bump:
     - asdf exec npm i
     - >

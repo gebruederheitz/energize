@@ -2,50 +2,26 @@
     "name": "@gebruederheitz/energize",
     "version": "1.5.5",
     "description": "Reactive DOM operations with plain ES6+",
-    "source": "src/index.ts",
-    "main": "dist/index.js",
-    "module": "dist/esm/index.js",
-    "types": "dist/types/index.d.ts",
+    "type": "module",
     "exports": {
         ".": {
-            "types": "./dist/types/index.d.ts",
-            "require": "./dist/index.js",
-            "import": "./dist/esm/index.js"
-        },
-        "./animations": {
-            "types": "./dist/types/animations/index.d.ts",
-            "require": "./dist/animations/index.js",
-            "import": "./dist/animations/esm/index.js"
-        },
-        "./animations.css": {
-            "require": "./dist/animations/styles.css",
-            "import": "./dist/animations/styles.css"
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
         }
     },
-    "typesVersions": {
-        "*": {
-            ".": [
-                "dist/types/index.d.ts"
-            ],
-            "./animations": [
-                "dist/types/animations/index.d.ts"
-            ]
-        }
-    },
+    "sideEffects": false,
     "scripts": {
         "prebuild": "rm -rf dist/",
-        "build": "rollup -c rollup.config.mjs",
-        "postbuild": "cp src/store.d.ts dist/types/",
-        "build:styles": "gulp",
+        "build": "tsc -p tsconfig.json",
         "lint": "npm run prettier:check && npm run tscheck",
-        "prettier:check": "prettier -c --config .prettierrc src/",
-        "prettier:fix": "prettier -w --config .prettierrc src/",
+        "prettier:check": "prettier -c --config .prettierrc src/ test/ vitest.config.mts",
+        "prettier:fix": "prettier -w --config .prettierrc src/ test/ vitest.config.mts",
         "release": "release-it --only-version",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "tscheck": "tsc --noEmit -p ./tsconfig.json",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "tscheck": "tsc --noEmit -p ./tsconfig.json && tsc -p ./test/tsconfig.json",
         "prewatch": "rm -rf dist/",
-        "watch": "rollup -c rollup.config.mjs --watch",
-        "watch:styles": "gulp watch"
+        "watch": "tsc -p tsconfig.json --watch"
     },
     "repository": {
         "type": "git",
@@ -61,22 +37,13 @@
     },
     "homepage": "https://github.com/gebruederheitz/energize#readme",
     "devDependencies": {
-        "@rollup/plugin-node-resolve": "^16.0.3",
-        "@rollup/plugin-typescript": "^12.3.1",
-        "autoprefixer": "^10.6.2",
-        "cssnano": "^9.9.0",
-        "gulp": "^5.0.1",
-        "gulp-dart-sass": "^1.1.0",
-        "gulp-postcss": "^10.0.0",
+        "happy-dom": "^21.0.4",
         "prettier": "^3.9.10",
         "release-it": "^21.1.2",
-        "rollup": "^4.67.4",
-        "typescript": "^7.0.2"
+        "typescript": "^7.0.2",
+        "vitest": "^5.1.0"
     },
     "publishConfig": {
         "access": "public"
-    },
-    "dependencies": {
-        "nanostores": "^1.5.5"
     }
 }

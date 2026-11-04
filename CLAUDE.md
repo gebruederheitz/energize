@@ -10,20 +10,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The Taskfile wraps the npm scripts with `asdf exec` and reinstalls dependencies when `package.json`/`package-lock.json` change:
 
-- `task dev`: watch JS (rollup) and SCSS (gulp) in parallel (`npm run watch` + `npm run watch:styles`)
-- `task build`: `npm run build`, then `npm run build:styles`
-- `task lint` (alias `task test`): `npm run lint`, which runs `prettier:check` and `tscheck` (`tsc --noEmit`)
-- `npm run prettier:fix`: format `src/`
+- `task dev`: rebuild on changes (`npm run watch`, which is `tsc --watch`)
+- `task build`: `npm run build`
+- `task lint`: `npm run lint`, which runs `prettier:check` and `tscheck` (`tsc` on `tsconfig.json` and on `test/tsconfig.json`)
+- `task test`: `npm test`, which runs the vitest suite once; `npm run test:watch` keeps it running
+- `task test -- test/stores.test.ts` runs a single file, `task test -- -t 'destroy'` the tests whose name matches; anything after `--` goes to vitest
+- `npm run prettier:fix`: format `src/`, `test/` and `vitest.config.mts`
 
-There is no test suite. `npm test` fails on purpose, and lint is the only check. Don't run `build:styles` before `build`: the `prebuild` hook deletes all of `dist/`, including the compiled CSS.
+## Tests
+
+- The tests live in `test/`, one file per area, and import the library from `../src/`. `vitest.config.mts` sets the environment to happy-dom, because jsdom doesn't implement `innerText`, which `content()`, `getContent()` and `createElement` use.
+- `test/setup.ts` empties `document.body` after each test and works around a happy-dom gap: `document instanceof Document` is false there, which `energize`/`energizeAll` rely on.
+- `test/support/store.ts` is a minimal store that implements only `StoreType`; use it rather than a store library.
+- happy-dom doesn't compute transition or animation timings from stylesheets. `test/transitioning-element.test.ts` stubs `getComputedStyle` per element, uses fake timers for `requestAnimationFrame`/`setTimeout`, and dispatches the end events itself.
+- Tests describe intended behaviour. A known defect is an `it.fails` test with a comment that names the issue; when the fix lands, vitest reports it as failing until it becomes a plain `it`.
 
 ## Build pipeline
 
-- `rollup.config.mjs`: `hybridBuild(entry, dir, emitTypes)` runs a CJS pass into `<dir>` and an ESM pass into `<dir>/esm` for each of the two entry points, `src/index.ts` → `dist/` and `src/animations/index.ts` → `dist/animations/`. Only the ESM pass overrides `module`/`moduleResolution`. The CJS pass inherits `tsconfig.json`.
-- Declarations are emitted only by the core build. Because `tsconfig.json` includes all of `src/`, they still cover the animations entry (`dist/types/animations/`).
-- `src/store.d.ts` is a hand-written declaration file that tsc does not emit, so `postbuild` copies it into `dist/types/`. The other modules import it as `./store`.
-- `Gulpfile.mjs` compiles `src/**/*.scss` into `dist/` and keeps the paths (`src/animations/styles.scss` → `dist/animations/styles.css`). cssnano runs only outside watch mode.
-- The public surface is the `exports` map plus `typesVersions` in `package.json` (`.`, `./animations`, `./animations.css`). A new entry point needs changes in `rollup.config.mjs`, `exports` and `typesVersions`.
+- The package is ESM-only (`"type": "module"`) and has no bundler. `tsc` compiles every file under `src/` one to one into `dist/`, with declarations and source maps next to the JS.
+- Because of `module: nodenext`, relative imports in `src/` must use the `.js` extension of the emitted file (`'./store.js'`, not `'./store'`).
+- `src/store.ts` holds only types (the `StoreType` contract); import it with `import type`.
+- The public surface is the single `.` entry of the `exports` map in `package.json`, with a `types` and a `default` condition. The package has no runtime dependencies and declares `sideEffects: false`; keep module evaluation free of side effects.
 - `dist/` is gitignored. `.npmignore` replaces `.gitignore` for npm, so any new repo-only file must be added there or it ends up in the published package.
 
 ## Architecture
@@ -31,13 +38,14 @@ There is no test suite. `npm test` fails on purpose, and lint is the only check.
 - **`EnhancedElement<ET, S, STATE, InitOptionsArg>`** (`src/enhanced-element.ts`) wraps one element. Its type parameters are the element type, the store type (`StoreType<STATE>` or `void`), the state and the init options. The helper types `EEConstructor`, `EEConstructorArgs`, `EEStoreType` and `EEElementType` read these back from a subclass, so that the factories (`enhance*`, `findAndWrap*Into`, `cloneInto`, `energize*`) can type-check extra constructor arguments and pass them through. New factories should follow the same pattern.
 - **Lifecycle:** the base constructor syncs visibility and then calls `onInit()` with no arguments. This happens inside `super()`, before the subclass's field initializers run, so inside `onInit` class fields (including arrow-function handlers) are still `undefined`. `connect(store)` subscribes `onStateUpdate` and then calls `onAfterConnect()`. By default, `onStateUpdate` dispatches a `state-update` CustomEvent. `destroy()` removes the element, unsubscribes and then calls `onDestroyed()`.
 - **Visibility:** the hidden class from the overridable `getClassNames()` and `aria-hidden` are kept in sync. The constructor takes the initial `visible` state from whichever of the two is set. `show()`/`hide()` are no-ops when the state doesn't change, and otherwise fire `onShown()`/`onHidden()`.
-- **Stores:** the core depends only on the `StoreType` shape (`subscribe(cb) → unsubscribe`) and has no runtime dependency on nanostores.
+- **Stores:** the core depends only on the `StoreType` shape (`subscribe(cb) → unsubscribe`). `examples/crossfade/index.html` has a minimal store implementation.
 - **`energize`/`energizeAll`** (`src/energize.ts`) dispatch on the second argument. A constructor goes to `EnhancedElement.enhance`/`enhanceAll`, which query `document` and connect the store if one is given. An `Element`/`Document` or nothing goes to `fromSelector`/`fromSelectorAll`, which return plain `EnhancedElement`s.
-- **Animations entry** (`src/animations/`): `EnhancedTransitionElement` overrides `show`/`hide` to toggle the `entering`/`exiting` classes and finishes on `animationend`. It publishes the entering element to a static nanostores atom, and `TransitionsContainer` uses it to set `--min-height` on `.energize-transitions`. Importing this entry has a side effect: when the module is evaluated it runs `energize('.energize-transitions', TransitionsContainer)`, which enhances only the first container already in the DOM. This entry is the only reason nanostores is a runtime dependency. Its CSS ships separately as `animations.css`, with transition variants set through the `.crossfade`/`.blinds`/`.zoom` modifier classes and `--energize-transition-*` custom properties.
+- **`EnhancedTransitioningElement`** (`src/transitioning-element.ts`) overrides `show`/`hide` with a four-class state machine (`show` → `shown`, `hide` → `hidden`; names from `getClassNames()`). `visible` and `aria-hidden` change immediately. Every call bumps `transitionId`, and pending `requestAnimationFrame`/timeout callbacks and end listeners for an older id do nothing, which makes interruptions safe. It finishes on the end event of the element's longest transition or animation (from the computed style), on a timeout fallback, or immediately when the computed duration is zero. It ships no CSS; the README documents the classes.
+- **Examples** (`examples/`): static pages that import the built `dist/` and need a static file server at the repository root (the README suggests `npx sirv-cli . --dev`), because ES modules don't load from `file://`. `examples/crossfade/` (a single page: views crossfade with CSS animations while the container animates to the new view's height) replaces the 1.x `/animations` entry. Examples aren't published to npm.
 - `tsconfig.json` has `strict: false`, and the code relies on that (for example `= null` defaults on non-nullable parameters). Turning strict mode on is a real change, not a cleanup.
 
 ## Conventions
 
-- Prettier settings are in `.prettierrc`. Only `src/` is checked.
+- Prettier settings are in `.prettierrc`. `src/`, `test/` and `vitest.config.mts` are checked.
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`). Issue branches are named `issue/<number>-<slug>`.
-- `npm run release` runs `release-it --only-version` and is allowed only on `main`, `release/*` and `next`. Before it starts, it runs lint, build and build:styles. After the version bump it runs `npm i` and stages the lockfile. It commits `chore: Release v<version>`, tags, publishes to npm and opens the prefilled GitHub release form in the browser. Only run it when asked.
+- `npm run release` runs `release-it --only-version` and is allowed only on `main`, `release/*` and `next`. Before it starts, it runs lint and build. After the version bump it runs `npm i` and stages the lockfile. It commits `chore: Release v<version>`, tags, publishes to npm and opens the prefilled GitHub release form in the browser. Only run it when asked.

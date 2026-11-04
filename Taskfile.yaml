@@ -31,21 +31,7 @@ tasks:
     deps:
       - task: install-dependencies
     cmds:
-      - task: dev:run
-
-  dev:run:
-    internal: true
-    deps:
-      - task: dev:run-js
-      - task: dev:run-css
-
-  dev:run-js:
-    internal: true
-    cmd: asdf exec npm run watch
-
-  dev:run-css:
-    internal: true
-    cmd: asdf exec npm run watch:styles
+      - asdf exec npm run watch
 
   build:
     desc: Build the widgets for production
@@ -53,16 +39,20 @@ tasks:
       - task: install-dependencies
     cmds:
       - asdf exec npm run build
-      - asdf exec npm run build:styles
 
   lint:
-    aliases:
-      - test
     desc: Perform linting and code style checks on the widgets
     deps:
       - task: install-dependencies
     cmds:
       - asdf exec npm run lint
+
+  test:
+    desc: Run the test suite (pass vitest arguments after --)
+    deps:
+      - task: install-dependencies
+    cmds:
+      - asdf exec npm test -- {{.CLI_ARGS}}
 
   release:
     desc: Create a new release and publish it to GitHub & NPM
