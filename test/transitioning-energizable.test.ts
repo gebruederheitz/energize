@@ -452,6 +452,20 @@ describe('TransitioningEnergizable', () => {
         });
     });
 
+    it('toggleWithContent() runs the show transition', () => {
+        const element = div('class="hidden"');
+        const enhanced = new Tracked(element);
+
+        enhanced.toggleWithContent('Hello');
+
+        expect(classes(element)).toBe('hidden show');
+
+        nextFrame();
+
+        expect(classes(element)).toBe('shown');
+        expect(enhanced.calls).toEqual(['shown']);
+    });
+
     it('takes the class names from getClassNames()', () => {
         const element = div('class="is-hidden"');
         const enhanced = new CustomClasses(element);

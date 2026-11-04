@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Energizable, StoreType } from '../src/index';
 import { createTestStore } from './support/store';
 
@@ -12,6 +12,10 @@ class Recorder extends Energizable<HTMLElement, number> {
         this.storeInAfterConnect = this.store;
     }
 
+    protected onDisconnected(): void {
+        this.calls.push('disconnected');
+    }
+
     protected onStateUpdate(state: number): void {
         this.calls.push(`state:${state}`);
     }
@@ -20,6 +24,16 @@ class Recorder extends Energizable<HTMLElement, number> {
         this.calls.push('destroyed');
     }
 }
+
+let warn: ReturnType<typeof vi.spyOn>;
+
+beforeEach(() => {
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
+afterEach(() => {
+    vi.restoreAllMocks();
+});
 
 describe('stores', () => {
     it('connect() subscribes, calls onAfterConnect and chains', () => {
@@ -86,7 +100,7 @@ describe('stores', () => {
         expect(recorder.calls).toEqual(['state:0', 'afterConnect']);
     });
 
-    it('destroy() unsubscribes and calls onDestroyed', () => {
+    it('destroy() disconnects, then calls onDestroyed', () => {
         const store = createTestStore<number>();
         const recorder = new Recorder(document.createElement('div'));
         recorder.connect(store);
@@ -95,6 +109,123 @@ describe('stores', () => {
         store.set(1);
 
         expect(store.subscriberCount).toBe(0);
-        expect(recorder.calls).toEqual(['afterConnect', 'destroyed']);
+        expect(recorder.calls).toEqual([
+            'afterConnect',
+            'disconnected',
+            'destroyed',
+        ]);
+    });
+
+    describe('disconnect', () => {
+        it('unsubscribes, calls onDisconnected and chains', () => {
+            const store = createTestStore<number>();
+            const recorder = new Recorder(document.createElement('div'));
+            recorder.connect(store);
+
+            expect(recorder.disconnect()).toBe(recorder);
+            store.set(1);
+
+            expect(store.subscriberCount).toBe(0);
+            expect(recorder.calls).toEqual(['afterConnect', 'disconnected']);
+        });
+
+        it('does nothing without a store', () => {
+            const recorder = new Recorder(document.createElement('div'));
+
+            expect(recorder.disconnect()).toBe(recorder);
+            expect(recorder.calls).toEqual([]);
+        });
+
+        it('lets destroy() run after it without disconnecting again', () => {
+            const store = createTestStore<number>();
+            const recorder = new Recorder(document.createElement('div'));
+            recorder.connect(store).disconnect();
+
+            expect(() => recorder.destroy()).not.toThrow();
+            expect(recorder.calls).toEqual([
+                'afterConnect',
+                'disconnected',
+                'destroyed',
+            ]);
+        });
+
+        it('switches stores with connect() without a warning', () => {
+            const first = createTestStore<number>();
+            const second = createTestStore<number>();
+            const recorder = new Recorder(document.createElement('div'));
+
+            recorder.connect(first).disconnect().connect(second);
+            first.set(1);
+            second.set(2);
+
+            expect(first.subscriberCount).toBe(0);
+            expect(second.subscriberCount).toBe(1);
+            expect(recorder.calls).toEqual([
+                'afterConnect',
+                'disconnected',
+                'afterConnect',
+                'state:2',
+            ]);
+            expect(warn).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('isStoreConnected', () => {
+        it('tells whether a store is connected', () => {
+            const store = createTestStore<number>();
+            const recorder = new Recorder(document.createElement('div'));
+
+            expect(recorder.isStoreConnected()).toBe(false);
+
+            recorder.connect(store);
+
+            expect(recorder.isStoreConnected()).toBe(true);
+            expect(store.subscriberCount).toBe(1);
+
+            recorder.disconnect();
+
+            expect(recorder.isStoreConnected()).toBe(false);
+            expect(store.subscriberCount).toBe(0);
+        });
+    });
+
+    describe('connect() while connected', () => {
+        it('warns, then replaces the previous store', () => {
+            const first = createTestStore<number>();
+            const second = createTestStore<number>();
+            const recorder = new Recorder(document.createElement('div'));
+            recorder.connect(first);
+
+            recorder.connect(second);
+            first.set(1);
+            second.set(2);
+
+            expect(warn).toHaveBeenCalledTimes(1);
+            expect(warn.mock.calls[0][0]).toContain('Recorder');
+            expect(warn.mock.calls[0][0]).toContain('disconnect()');
+            expect(first.subscriberCount).toBe(0);
+            expect(second.subscriberCount).toBe(1);
+            expect(recorder.calls).toEqual([
+                'afterConnect',
+                'disconnected',
+                'afterConnect',
+                'state:2',
+            ]);
+        });
+
+        it('warns for the same store and keeps one subscription', () => {
+            const store = createTestStore<number>();
+            const recorder = new Recorder(document.createElement('div'));
+            recorder.connect(store);
+
+            recorder.connect(store);
+            store.set(1);
+
+            expect(warn).toHaveBeenCalledTimes(1);
+            expect(store.subscriberCount).toBe(1);
+            expect(recorder.calls.filter((c) => c === 'state:1')).toHaveLength(
+                1
+            );
+        });
     });
 });

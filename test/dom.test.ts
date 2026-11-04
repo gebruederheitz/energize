@@ -44,6 +44,38 @@ describe('content', () => {
         expect(element.classList.contains('hidden')).toBe(false);
     });
 
+    it('contentOrHide() leaves a hidden element hidden', () => {
+        const element = spark({ classNames: ['hidden'] })
+            .contentOrHide('Hello')
+            .getElement();
+
+        expect(element.innerText).toBe('Hello');
+        expect(element.classList.contains('hidden')).toBe(true);
+    });
+
+    it('toggleWithContent() sets the content and shows a hidden element', () => {
+        const enhanced = spark({ classNames: ['hidden'] });
+        const element = enhanced.getElement();
+
+        expect(enhanced.toggleWithContent('Hello')).toBe(enhanced);
+        expect(element.innerText).toBe('Hello');
+        expect(element.classList.contains('hidden')).toBe(false);
+        expect(element.getAttribute('aria-hidden')).toBe('false');
+    });
+
+    it.each([[''], [null], [undefined]])(
+        'toggleWithContent(%j) hides the element and keeps its content',
+        (text) => {
+            const element = spark({ content: 'Hello' })
+                .toggleWithContent(text)
+                .getElement();
+
+            expect(element.classList.contains('hidden')).toBe(true);
+            expect(element.getAttribute('aria-hidden')).toBe('true');
+            expect(element.innerText).toBe('Hello');
+        }
+    );
+
     it.each([[''], [null], [undefined]])(
         'contentOrHide(%j) hides the element and keeps its content',
         (text) => {
