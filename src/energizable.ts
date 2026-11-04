@@ -49,8 +49,19 @@ export class Energizable<
     /**
      * Use this to connect your element to a subscribable store. Elements
      * without state don't accept one.
+     *
+     * An element has one store at a time: call disconnect() before connecting
+     * another one. If it is still connected, connect() logs a warning and
+     * disconnects the previous store first.
      */
     public connect(store: STORE): this {
+        if (this.isStoreConnected()) {
+            console.warn(
+                `@gebruederheitz/energize: ${this.constructor.name} is already connected to a store. Call disconnect() before connect(); disconnecting the previous store now.`
+            );
+            this.disconnect();
+        }
+
         this.store = store;
         this.unsubscribe = store.subscribe((state) =>
             this.onStateUpdate(state)
@@ -60,7 +71,31 @@ export class Energizable<
         return this;
     }
 
+    /**
+     * Unsubscribes from the connected store, then calls onDisconnected().
+     * Does nothing if no store is connected. Chainable.
+     */
+    public disconnect(): this {
+        if (!this.isStoreConnected()) return this;
+
+        this.unsubscribe?.();
+        this.unsubscribe = null;
+        this.store = null;
+        this.onDisconnected();
+
+        return this;
+    }
+
+    /**
+     * Whether a store is connected.
+     */
+    public isStoreConnected(): boolean {
+        return this.store !== null;
+    }
+
     protected onAfterConnect(): void {}
+
+    protected onDisconnected(): void {}
 
     protected onInit(): void {}
 
@@ -143,6 +178,10 @@ export class Energizable<
      * Set the innerText of the element, or hide it if the text is null or
      * empty. Chainable.
      * Will not change a hidden element's visibility.
+     *
+     * @deprecated Use toggleWithContent(), which also shows the element when
+     *             there is text. contentOrHide() will be removed in the next
+     *             major release.
      */
     public contentOrHide(innerText: string | null = null): this {
         if (!innerText) {
@@ -152,6 +191,16 @@ export class Energizable<
         }
 
         return this.content(innerText);
+    }
+
+    /**
+     * Set the innerText of the element and show it, or hide it if the text is
+     * null or empty, keeping the previous content. Chainable.
+     */
+    public toggleWithContent(innerText: string | null = null): this {
+        if (!innerText) return this.hide();
+
+        return this.content(innerText).show();
     }
 
     /**
@@ -210,21 +259,14 @@ export class Energizable<
     }
 
     /**
-     * Destroys the element, removing it from the DOM and cleaning up any store
-     * subscriptions.
+     * Destroys the element, removing it from the DOM and disconnecting its
+     * store, then calls onDestroyed().
      */
     public destroy(): void {
         const classes = this.getClassNames();
         this.element.classList.add(classes.hidden);
         this.element.remove();
-
-        if (this.store) {
-            this.store = null;
-
-            if (this.unsubscribe) {
-                this.unsubscribe();
-            }
-        }
+        this.disconnect();
 
         this.onDestroyed();
     }

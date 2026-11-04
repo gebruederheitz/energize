@@ -45,6 +45,7 @@ class MyComponent extends Energizable<HTMLDivElement, string, typeof store> {
         this.on('click', (e) => this.onClick(e));
     }
     protected onAfterConnect(): void {}
+    protected onDisconnected(): void {}
     protected onShown(): void {}
     protected onHidden(): void {}
     protected onDestroyed(): void {}
@@ -135,7 +136,9 @@ To wrap an element you already hold, call the constructor:
 ```ts
 // Stores
 connect(store): this;                  // subscribes onStateUpdate(), then calls onAfterConnect()
-destroy(): void;                       // removes the element and unsubscribes
+disconnect(): this;                    // unsubscribes, then calls onDisconnected(); no-op without a store
+isStoreConnected(): boolean;
+destroy(): void;                       // removes the element and disconnects
 
 // Visibility: toggles the "hidden" class and aria-hidden
 show(): this;
@@ -145,7 +148,8 @@ protected getClassNames(): Record<string, string>; // override to rename "hidden
 
 // Content, classes, attributes and data
 content(innerText: string): this;
-contentOrHide(innerText: string | null): this; // hides the element for empty content
+toggleWithContent(innerText: string | null): this; // sets the content and shows the element, or hides it for empty content
+contentOrHide(innerText: string | null): this; // deprecated: hides for empty content, but never shows
 getContent(): string;
 addClass(...classes: string[]): this;
 removeClass(...classes: string[]): this;
@@ -173,6 +177,11 @@ findAndWrapAllInto(selector, MyComponent, store?, ...constructorArgs): MyCompone
 clone(): Energizable;
 cloneInto(MyComponent, ...constructorArgs): MyComponent;
 ```
+
+An element has one store at a time. To switch stores, disconnect first:
+`component.disconnect().connect(otherStore)`. Calling `connect()` on an element
+that is still connected is a mistake in the calling code: energize logs a
+warning and disconnects the previous store before connecting the new one.
 
 The utility types `EnergizableConstructor`, `EnergizableElementType`,
 `EnergizableStoreType` and `EnergizableStoreArgument` are exported for writing
