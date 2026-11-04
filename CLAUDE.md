@@ -17,7 +17,7 @@ The Node version is pinned in `.tool-versions` (asdf); it is the only pin, and C
 - `task test -- test/stores.test.ts` runs a single file, `task test -- -t 'destroy'` the tests whose name matches; anything after `--` goes to vitest
 - `npm run prettier:fix`: format `src/`, `test/` and `vitest.config.mts`
 
-CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run lint`, `npm test` and `npm run build` on every pull request and every push to `main`. Its actions are pinned by commit SHA with the release tag in a comment; update both together.
+CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run lint`, `npm test` and `npm run build` on every pull request and every push to `main`. Its actions are pinned by commit SHA with the release tag in a comment; update both together. Dependabot (`.github/dependabot.yml`) opens one grouped PR a month for them; npm security updates come from the repository settings.
 
 ## Tests
 

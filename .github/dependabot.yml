@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Keeps the SHA pins and their version comments in .github/workflows
+  # current. npm security updates are enabled in the repository settings.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
