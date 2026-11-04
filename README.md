@@ -19,6 +19,8 @@ store with a `subscribe(callback)` method that returns an unsubscribe function
 npm i @gebruederheitz/energize
 ```
 
+Upgrading from 1.x? See [UPGRADING.md](UPGRADING.md).
+
 
 ```html
 <!-- Pre-existing HTML and CSS -->

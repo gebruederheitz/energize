@@ -50,4 +50,5 @@ The Node version is pinned in `.tool-versions` (asdf); it is the only pin. The T
 
 - Prettier settings are in `.prettierrc`. `src/`, `test/` and `vitest.config.mts` are checked.
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`). Issue branches are named `issue/<number>-<slug>`.
+- Breaking changes get a section in `UPGRADING.md` (one per major version, with before/after code). It ships with the package like the README.
 - `npm run release` runs `release-it --only-version` and is allowed only on `main`, `release/*` and `next`. Before it starts, it runs lint and build. After the version bump it runs `npm i` and stages the lockfile. It commits `chore: Release v<version>`, tags, publishes to npm and opens the prefilled GitHub release form in the browser. Only run it when asked.
